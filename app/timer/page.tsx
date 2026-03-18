@@ -8,7 +8,6 @@ export default function Page() {
   const [seconds, setSeconds] = useState(900);
   const [total, setTotal] = useState(900);
   const [running, setRunning] = useState(false);
-
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -83,7 +82,7 @@ export default function Page() {
     return () => cancelAnimationFrame(raf);
   }, [running]);
 
-  /* FULLSCREEN */
+  /* FULLSCREEN STATE */
   useEffect(() => {
     const handler = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", handler);
@@ -97,6 +96,7 @@ export default function Page() {
           isFullscreen ? "px-[2%] py-[2%]" : "px-[4%] py-[4%]"
         }`}
       >
+        {/* TIMER */}
         <div className="flex-1 flex items-center justify-center w-full">
           <div
             className={`aspect-square ${
@@ -106,7 +106,6 @@ export default function Page() {
             }`}
           >
             <svg viewBox="0 0 200 200" className="w-full h-full">
-              
               {/* BASE */}
               <circle cx="100" cy="100" r="100" fill="#f3f4f6" />
 
@@ -128,15 +127,16 @@ export default function Page() {
                   TIMBA
                 </text>
               )}
-
             </svg>
           </div>
         </div>
 
+        {/* TIME */}
         <div className="text-3xl font-semibold mb-2">
           {formatTime(seconds)}
         </div>
 
+        {/* PRESETS */}
         <div className="flex gap-3 flex-wrap justify-center">
           {PRESETS.map((sec) => (
             <button
@@ -154,6 +154,7 @@ export default function Page() {
           ))}
         </div>
 
+        {/* CONTROLS */}
         <div className="flex gap-3 flex-wrap justify-center mt-3 mb-2">
           <button
             onClick={() => {
@@ -179,13 +180,27 @@ export default function Page() {
           >
             Reset
           </button>
+
+          {/* FULLSCREEN */}
+          <button
+            onClick={() => {
+              if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+              } else {
+                document.exitFullscreen();
+              }
+            }}
+            className="px-6 py-3 bg-gray-200 rounded-xl"
+          >
+            {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+          </button>
         </div>
       </div>
     </main>
   );
 }
 
-/* CLOCKWISE PIE (CORRECT) */
+/* CLOCKWISE PIE */
 function pie(cx: number, cy: number, r: number, angle: number) {
   const end = polar(cx, cy, r, angle);
   const large = Math.abs(angle) > 180 ? 1 : 0;
