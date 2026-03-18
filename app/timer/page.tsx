@@ -12,6 +12,7 @@ export default function Page() {
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const endTimeRef = useRef<number | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   const isStart = !running && seconds === total;
 
@@ -20,8 +21,6 @@ export default function Page() {
 
   /* TIMER — HARD REALTIME */
   useEffect(() => {
-    let raf: number;
-
     function update() {
       if (!running || !endTimeRef.current) return;
 
@@ -37,8 +36,11 @@ export default function Page() {
         endTimeRef.current = null;
 
         try {
-          const ctx = audioCtxRef.current || new AudioContext();
-          audioCtxRef.current = ctx;
+          // FIX A: stabiele AudioContext
+          if (!audioCtxRef.current) {
+            audioCtxRef.current = new AudioContext();
+          }
+          const ctx = audioCtxRef.current;
 
           const beep = (delay: number) => {
             const o = ctx.createOscillator();
@@ -68,7 +70,7 @@ export default function Page() {
         return;
       }
 
-      raf = requestAnimationFrame(update);
+      rafRef.current = requestAnimationFrame(update);
     }
 
     if (running && !endTimeRef.current) {
@@ -76,10 +78,13 @@ export default function Page() {
     }
 
     if (running) {
-      raf = requestAnimationFrame(update);
+      rafRef.current = requestAnimationFrame(update);
     }
 
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      // FIX B: cleanup altijd correct
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [running]);
 
   /* FULLSCREEN STATE */
