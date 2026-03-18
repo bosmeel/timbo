@@ -8,6 +8,7 @@ export default function Page() {
   const [seconds, setSeconds] = useState(900);
   const [total, setTotal] = useState(900);
   const [running, setRunning] = useState(false);
+
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -16,27 +17,23 @@ export default function Page() {
   const isStart = !running && seconds === total;
 
   const progress = total > 0 ? seconds / total : 0;
+  const angle = progress * 360;
 
-  const radius = 90;
-  const circumference = 2 * Math.PI * radius;
-  const dashOffset = circumference * progress;
-
-  /* TIMER (REAL TIME) */
+  /* TIMER — HARD REALTIME */
   useEffect(() => {
-    if (!running) return;
+    let raf: number;
 
-    if (!endTimeRef.current) {
-      endTimeRef.current = Date.now() + seconds * 1000;
-    }
+    function update() {
+      if (!running || !endTimeRef.current) return;
 
-    const interval = setInterval(() => {
       const remaining = Math.max(
         0,
-        Math.round((endTimeRef.current! - Date.now()) / 1000)
+        Math.round((endTimeRef.current - Date.now()) / 1000)
       );
 
-      if (remaining <= 0) {
-        setSeconds(0);
+      setSeconds(remaining);
+
+      if (remaining === 0) {
         setRunning(false);
         endTimeRef.current = null;
 
@@ -72,10 +69,18 @@ export default function Page() {
         return;
       }
 
-      setSeconds(remaining);
-    }, 250); // sneller checken → nauwkeuriger
+      raf = requestAnimationFrame(update);
+    }
 
-    return () => clearInterval(interval);
+    if (running && !endTimeRef.current) {
+      endTimeRef.current = Date.now() + seconds * 1000;
+    }
+
+    if (running) {
+      raf = requestAnimationFrame(update);
+    }
+
+    return () => cancelAnimationFrame(raf);
   }, [running]);
 
   /* FULLSCREEN */
@@ -92,7 +97,6 @@ export default function Page() {
           isFullscreen ? "px-[2%] py-[2%]" : "px-[4%] py-[4%]"
         }`}
       >
-        {/* TIMER */}
         <div className="flex-1 flex items-center justify-center w-full">
           <div
             className={`aspect-square ${
@@ -102,44 +106,13 @@ export default function Page() {
             }`}
           >
             <svg viewBox="0 0 200 200" className="w-full h-full">
+              
               {/* BASE */}
-              <circle cx="100" cy="100" r="95" fill="#f3f4f6" />
+              <circle cx="100" cy="100" r="100" fill="#f3f4f6" />
 
-              {/* TICKS */}
-              {!isStart &&
-                Array.from({ length: 60 }).map((_, i) => {
-                  const angle = (i / 60) * 360;
-                  const isMajor = i % 5 === 0;
-
-                  const s = polar(100, 100, isMajor ? 85 : 90, angle);
-                  const e = polar(100, 100, 95, angle);
-
-                  return (
-                    <line
-                      key={i}
-                      x1={s.x}
-                      y1={s.y}
-                      x2={e.x}
-                      y2={e.y}
-                      stroke={isMajor ? "#9ca3af" : "#d1d5db"}
-                      strokeWidth={isMajor ? 2 : 1}
-                    />
-                  );
-                })}
-
-              {/* PROGRESS */}
-              {!isStart && (
-                <circle
-                  cx="100"
-                  cy="100"
-                  r={radius}
-                  fill="none"
-                  stroke="#dc2626"
-                  strokeWidth="20"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={dashOffset}
-                  transform="rotate(-90 100 100)"
-                />
+              {/* RED PIE */}
+              {!isStart && progress > 0 && (
+                <path d={pie(100, 100, 100, -angle)} fill="#dc2626" />
               )}
 
               {/* START */}
@@ -155,16 +128,15 @@ export default function Page() {
                   TIMBA
                 </text>
               )}
+
             </svg>
           </div>
         </div>
 
-        {/* TIME */}
         <div className="text-3xl font-semibold mb-2">
           {formatTime(seconds)}
         </div>
 
-        {/* PRESETS */}
         <div className="flex gap-3 flex-wrap justify-center">
           {PRESETS.map((sec) => (
             <button
@@ -182,7 +154,6 @@ export default function Page() {
           ))}
         </div>
 
-        {/* CONTROLS */}
         <div className="flex gap-3 flex-wrap justify-center mt-3 mb-2">
           <button
             onClick={() => {
@@ -208,23 +179,23 @@ export default function Page() {
           >
             Reset
           </button>
-
-          <button
-            onClick={() => {
-              if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-              } else {
-                document.exitFullscreen();
-              }
-            }}
-            className="px-6 py-3 bg-gray-200 rounded-xl"
-          >
-            {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-          </button>
         </div>
       </div>
     </main>
   );
+}
+
+/* CLOCKWISE PIE (CORRECT) */
+function pie(cx: number, cy: number, r: number, angle: number) {
+  const end = polar(cx, cy, r, angle);
+  const large = Math.abs(angle) > 180 ? 1 : 0;
+
+  return [
+    "M", cx, cy,
+    "L", cx, cy - r,
+    "A", r, r, 0, large, 0, end.x, end.y,
+    "Z"
+  ].join(" ");
 }
 
 function polar(cx: number, cy: number, r: number, angle: number) {
