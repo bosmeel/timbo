@@ -11,57 +11,69 @@ export default function Page() {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const endTimeRef = useRef<number | null>(null);
 
   const isStart = !running && seconds === total;
 
   const progress = total > 0 ? seconds / total : 0;
-  const angle = progress * 360;
 
-  /* TIMER */
+  const radius = 90;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference * progress;
+
+  /* TIMER (REAL TIME) */
   useEffect(() => {
     if (!running) return;
 
+    if (!endTimeRef.current) {
+      endTimeRef.current = Date.now() + seconds * 1000;
+    }
+
     const interval = setInterval(() => {
-      setSeconds((prev) => {
-        if (prev <= 1) {
-          setRunning(false);
+      const remaining = Math.max(
+        0,
+        Math.round((endTimeRef.current! - Date.now()) / 1000)
+      );
 
-          try {
-            const ctx = audioCtxRef.current || new AudioContext();
-            audioCtxRef.current = ctx;
+      if (remaining <= 0) {
+        setSeconds(0);
+        setRunning(false);
+        endTimeRef.current = null;
 
-            const beep = (delay: number) => {
-              const o = ctx.createOscillator();
-              const g = ctx.createGain();
+        try {
+          const ctx = audioCtxRef.current || new AudioContext();
+          audioCtxRef.current = ctx;
 
-              o.type = "sine";
-              o.frequency.value = 880;
+          const beep = (delay: number) => {
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
 
-              o.connect(g);
-              g.connect(ctx.destination);
+            o.type = "sine";
+            o.frequency.value = 880;
 
-              const t = ctx.currentTime + delay;
+            o.connect(g);
+            g.connect(ctx.destination);
 
-              g.gain.setValueAtTime(0.3, t);
-              g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+            const t = ctx.currentTime + delay;
 
-              o.start(t);
-              o.stop(t + 0.2);
-            };
+            g.gain.setValueAtTime(0.3, t);
+            g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
 
-            beep(0);
-            beep(0.3);
-            beep(1);
-            beep(1.3);
+            o.start(t);
+            o.stop(t + 0.2);
+          };
 
-          } catch {}
+          beep(0);
+          beep(0.3);
+          beep(1);
+          beep(1.3);
+        } catch {}
 
-          return 0;
-        }
+        return;
+      }
 
-        return prev - 1;
-      });
-    }, 1000);
+      setSeconds(remaining);
+    }, 250); // sneller checken → nauwkeuriger
 
     return () => clearInterval(interval);
   }, [running]);
@@ -80,7 +92,6 @@ export default function Page() {
           isFullscreen ? "px-[2%] py-[2%]" : "px-[4%] py-[4%]"
         }`}
       >
-
         {/* TIMER */}
         <div className="flex-1 flex items-center justify-center w-full">
           <div
@@ -90,20 +101,18 @@ export default function Page() {
                 : "w-[min(60vh,92vw)]"
             }`}
           >
-
             <svg viewBox="0 0 200 200" className="w-full h-full">
-
               {/* BASE */}
-              <circle cx="100" cy="100" r="100" fill="#f3f4f6" />
+              <circle cx="100" cy="100" r="95" fill="#f3f4f6" />
 
               {/* TICKS */}
               {!isStart &&
                 Array.from({ length: 60 }).map((_, i) => {
-                  const a = (i / 60) * 360;
+                  const angle = (i / 60) * 360;
                   const isMajor = i % 5 === 0;
 
-                  const s = polar(100, 100, isMajor ? 85 : 90, a);
-                  const e = polar(100, 100, 95, a);
+                  const s = polar(100, 100, isMajor ? 85 : 90, angle);
+                  const e = polar(100, 100, 95, angle);
 
                   return (
                     <line
@@ -118,11 +127,18 @@ export default function Page() {
                   );
                 })}
 
-              {/* RED FILL (CLOCKWISE, FIXED) */}
-              {!isStart && progress > 0 && (
-                <path
-                  d={pie(100, 100, 100, -angle)}
-                  fill="#dc2626"
+              {/* PROGRESS */}
+              {!isStart && (
+                <circle
+                  cx="100"
+                  cy="100"
+                  r={radius}
+                  fill="none"
+                  stroke="#dc2626"
+                  strokeWidth="20"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={dashOffset}
+                  transform="rotate(-90 100 100)"
                 />
               )}
 
@@ -139,9 +155,7 @@ export default function Page() {
                   TIMBA
                 </text>
               )}
-
             </svg>
-
           </div>
         </div>
 
@@ -159,6 +173,7 @@ export default function Page() {
                 setTotal(sec);
                 setSeconds(sec);
                 setRunning(true);
+                endTimeRef.current = null;
               }}
               className="px-5 py-3 bg-black text-white rounded-xl"
             >
@@ -170,7 +185,14 @@ export default function Page() {
         {/* CONTROLS */}
         <div className="flex gap-3 flex-wrap justify-center mt-3 mb-2">
           <button
-            onClick={() => setRunning(!running)}
+            onClick={() => {
+              if (!running) {
+                endTimeRef.current = Date.now() + seconds * 1000;
+              } else {
+                endTimeRef.current = null;
+              }
+              setRunning(!running);
+            }}
             className="px-6 py-3 bg-black text-white rounded-xl"
           >
             {running ? "Pause" : "Start"}
@@ -180,6 +202,7 @@ export default function Page() {
             onClick={() => {
               setSeconds(total);
               setRunning(false);
+              endTimeRef.current = null;
             }}
             className="px-6 py-3 bg-gray-200 rounded-xl"
           >
@@ -199,23 +222,9 @@ export default function Page() {
             {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
           </button>
         </div>
-
       </div>
     </main>
   );
-}
-
-/* CORRECTE CLOCKWISE PIE */
-function pie(cx: number, cy: number, r: number, angle: number) {
-  const end = polar(cx, cy, r, angle);
-  const large = Math.abs(angle) > 180 ? 1 : 0;
-
-  return [
-    "M", cx, cy,
-    "L", cx, cy - r,
-    "A", r, r, 0, large, 0, end.x, end.y,
-    "Z"
-  ].join(" ");
 }
 
 function polar(cx: number, cy: number, r: number, angle: number) {
