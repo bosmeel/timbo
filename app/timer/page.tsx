@@ -1,15 +1,36 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useRef, useState } from "react";
 
 const PRESETS = [300, 600, 900, 1800, 3600];
 
 export default function Page() {
+  if (typeof window === "undefined") return null;
+
+  const isOldIOS =
+    typeof navigator !== "undefined" &&
+    /OS 12_/.test(navigator.userAgent);
+
+  if (isOldIOS) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-white text-center p-6">
+        <div>
+          <h1 className="text-xl font-semibold mb-4">Timbo Timer</h1>
+          <p className="text-gray-600">
+            This device is too old to run the timer.
+            <br />
+            Please use a newer device.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
   const [seconds, setSeconds] = useState(900);
   const [total, setTotal] = useState(900);
   const [running, setRunning] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const endTimeRef = useRef<number | null>(null);
@@ -19,21 +40,13 @@ export default function Page() {
   const progress = total > 0 ? seconds / total : 0;
   const angle = progress * 360;
 
-  /* detect desktop */
-  useEffect(() => {
-    const check = () => setIsDesktop(window.innerWidth > 900);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  /* audio unlock */
   function unlockAudio() {
     try {
       if (!audioCtxRef.current) {
         audioCtxRef.current = new AudioContext();
       }
       const ctx = audioCtxRef.current;
+
       const buffer = ctx.createBuffer(1, 1, 22050);
       const source = ctx.createBufferSource();
       source.buffer = buffer;
@@ -42,7 +55,6 @@ export default function Page() {
     } catch {}
   }
 
-  /* TIMER (time-based, stabiel) */
   useEffect(() => {
     const interval = setInterval(() => {
       if (!running || !endTimeRef.current) return;
@@ -63,29 +75,12 @@ export default function Page() {
     return () => clearInterval(interval);
   }, [running]);
 
-  /* fullscreen */
-  useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener("fullscreenchange", handler);
-    return () => document.removeEventListener("fullscreenchange", handler);
-  }, []);
-
-  function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      document.exitFullscreen();
-    }
-  }
-
   return (
     <main className="fixed inset-0 bg-white flex flex-col">
       
-      {/* TIMER */}
       <div className="flex-1 flex items-center justify-center">
         <div className="aspect-square w-[min(70vh,95vw)]">
           <svg viewBox="0 0 200 200" className="w-full h-full pointer-events-none">
-            
             <circle cx="100" cy="100" r="100" fill="#f3f4f6" />
 
             {!isStart && progress > 0 && (
@@ -108,9 +103,7 @@ export default function Page() {
         </div>
       </div>
 
-      {/* UI */}
       <div className="flex flex-col items-center gap-3 pb-6">
-        
         <div className="text-3xl font-semibold">
           {formatTime(seconds)}
         </div>
@@ -161,23 +154,12 @@ export default function Page() {
           >
             Reset
           </button>
-
-          {/* FULLSCREEN alleen desktop */}
-          {isDesktop && (
-            <button
-              onClick={toggleFullscreen}
-              className="px-6 py-3 bg-gray-200 rounded-xl"
-            >
-              {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-            </button>
-          )}
         </div>
       </div>
     </main>
   );
 }
 
-/* SVG */
 function pie(cx: number, cy: number, r: number, angle: number) {
   const end = polar(cx, cy, r, angle);
   const large = Math.abs(angle) > 180 ? 1 : 0;
