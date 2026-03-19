@@ -6,43 +6,6 @@ const PRESETS = [300, 600, 900, 1800, 3600];
 
 export default function Page() {
 
-  // 👇 alleen deze state behouden
-  const [isOldDevice, setIsOldDevice] = useState(false);
-
-  useEffect(() => {
-    try {
-      const ua = navigator.userAgent;
-
-      const isIOS =
-        /iPad|iPhone|iPod/.test(ua) ||
-        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-
-      const isOldVersion = /OS (9|10|11|12)_/.test(ua);
-
-      if (isIOS && isOldVersion) {
-        setIsOldDevice(true);
-      }
-    } catch {}
-  }, []);
-
-  // ❗ fallback (blijft hetzelfde)
-  if (isOldDevice) {
-    return (
-      <main className="min-h-screen flex items-center justify-center bg-white text-center p-6">
-        <div>
-          <h1 className="text-xl font-semibold mb-4">Timbo Timer</h1>
-          <p className="text-gray-600">
-            This device is too old to run the timer.
-            <br />
-            Please use a newer device.
-          </p>
-        </div>
-      </main>
-    );
-  }
-
-  // 👇 rest ongewijzigd
-
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [seconds, setSeconds] = useState(900);
   const [total, setTotal] = useState(900);
@@ -196,7 +159,7 @@ export default function Page() {
   );
 }
 
-/* helpers blijven hetzelfde */
+/* helpers */
 function pie(cx: number, cy: number, r: number, angle: number) {
   const end = polar(cx, cy, r, angle);
   const large = Math.abs(angle) > 180 ? 1 : 0;
