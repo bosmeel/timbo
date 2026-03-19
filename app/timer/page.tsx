@@ -109,24 +109,10 @@ export default function Page() {
   }, []);
 
   function toggleFullscreen() {
-    const el = document.documentElement;
-
     if (!document.fullscreenElement) {
-      if (el.requestFullscreen) el.requestFullscreen();
-      else {
-        // fallback iOS → pseudo fullscreen
-        document.body.style.position = "fixed";
-        document.body.style.inset = "0";
-        document.body.style.width = "100%";
-        document.body.style.height = "100%";
-        setIsFullscreen(true);
-      }
+      document.documentElement.requestFullscreen();
     } else {
-      if (document.exitFullscreen) document.exitFullscreen();
-      document.body.style.position = "";
-      document.body.style.inset = "";
-      document.body.style.width = "";
-      document.body.style.height = "";
+      document.exitFullscreen();
     }
   }
 
@@ -141,7 +127,7 @@ export default function Page() {
           <div
             className={`aspect-square ${
               isFullscreen
-                ? "w-[min(80vh,98vw)]"
+                ? "w-[min(76vh,94vw)]"
                 : "w-[min(60vh,92vw)]"
             }`}
           >
@@ -222,7 +208,7 @@ export default function Page() {
             onClick={toggleFullscreen}
             className="px-6 py-3 bg-gray-200 rounded-xl"
           >
-            Fullscreen
+            {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
           </button>
         </div>
       </div>
