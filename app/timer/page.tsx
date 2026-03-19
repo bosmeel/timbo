@@ -6,36 +6,26 @@ const PRESETS = [300, 600, 900, 1800, 3600];
 
 export default function Page() {
 
-  // 👇 3 states
-  const [checked, setChecked] = useState(false);
+  // 👇 alleen deze state behouden
   const [isOldDevice, setIsOldDevice] = useState(false);
 
   useEffect(() => {
-    const ua = navigator.userAgent;
+    try {
+      const ua = navigator.userAgent;
 
-    const isIOS =
-      /iPad|iPhone|iPod/.test(ua) ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      const isIOS =
+        /iPad|iPhone|iPod/.test(ua) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
-    const isOldVersion = /OS (9|10|11|12)_/.test(ua);
+      const isOldVersion = /OS (9|10|11|12)_/.test(ua);
 
-    if (isIOS && isOldVersion) {
-      setIsOldDevice(true);
-    }
-
-    setChecked(true);
+      if (isIOS && isOldVersion) {
+        setIsOldDevice(true);
+      }
+    } catch {}
   }, []);
 
-  // ❗ 1. eerst wachten (BELANGRIJK)
- if (!checked) {
-  return (
-    <main className="min-h-screen flex items-center justify-center bg-white">
-      <div className="text-gray-400 text-sm">Loading...</div>
-    </main>
-  );
-}
-
-  // ❗ 2. fallback
+  // ❗ fallback (blijft hetzelfde)
   if (isOldDevice) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-white text-center p-6">
@@ -51,7 +41,7 @@ export default function Page() {
     );
   }
 
-  // ❗ 3. ALLEEN hier start de timer (veilig)
+  // 👇 rest ongewijzigd
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [seconds, setSeconds] = useState(900);
