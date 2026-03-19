@@ -1,14 +1,10 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import { useEffect, useRef, useState } from "react";
 
 const PRESETS = [300, 600, 900, 1800, 3600];
 
 export default function Page() {
-  if (typeof window === "undefined") return null;
-
   const isOldIOS =
     typeof navigator !== "undefined" &&
     /OS 12_/.test(navigator.userAgent);
@@ -19,9 +15,11 @@ export default function Page() {
         <div>
           <h1 className="text-xl font-semibold mb-4">Timbo Timer</h1>
           <p className="text-gray-600">
-            This device is too old to run the timer.
+            This iPad is too old to run the timer.
             <br />
-            Please use a newer device.
+            Many school devices have outdated software.
+            <br />
+            Please try a newer device.
           </p>
         </div>
       </main>
@@ -160,6 +158,7 @@ export default function Page() {
   );
 }
 
+/* helpers */
 function pie(cx: number, cy: number, r: number, angle: number) {
   const end = polar(cx, cy, r, angle);
   const large = Math.abs(angle) > 180 ? 1 : 0;
