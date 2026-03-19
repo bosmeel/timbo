@@ -5,19 +5,26 @@ import { useEffect, useRef, useState } from "react";
 const PRESETS = [300, 600, 900, 1800, 3600];
 
 export default function Page() {
-  const isOldIOS =
-    typeof navigator !== "undefined" &&
-    /OS 12_/.test(navigator.userAgent);
 
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  // 👇 FIX: client-side detectie
+  const [isOldDevice, setIsOldDevice] = useState(false);
 
   useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener("fullscreenchange", handler);
-    return () => document.removeEventListener("fullscreenchange", handler);
+    const ua = navigator.userAgent;
+
+    const isIOS =
+      /iPad|iPhone|iPod/.test(ua) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+    const isOldVersion = /OS (9|10|11|12)_/.test(ua);
+
+    if (isIOS && isOldVersion) {
+      setIsOldDevice(true);
+    }
   }, []);
 
-  if (isOldIOS) {
+  // 👇 fallback (MOET vóór andere logica returnen)
+  if (isOldDevice) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-white text-center p-6">
         <div>
@@ -31,6 +38,10 @@ export default function Page() {
       </main>
     );
   }
+
+  // 👇 rest van je app (pas NA fallback)
+
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const [seconds, setSeconds] = useState(900);
   const [total, setTotal] = useState(900);
@@ -66,6 +77,12 @@ export default function Page() {
       document.exitFullscreen();
     }
   }
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -166,7 +183,6 @@ export default function Page() {
             Reset
           </button>
 
-          {/* DESKTOP ONLY FULLSCREEN */}
           <button
             onClick={toggleFullscreen}
             className="hidden md:block px-6 py-3 bg-gray-200 rounded-xl"
