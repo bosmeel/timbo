@@ -40,3 +40,8 @@ body {
     --foreground: #ededed;
   }
 }
+
+/* 🔥 iPad interaction fix */
+button {
+  touch-action: manipulation;
+}
