@@ -13,7 +13,7 @@ export default function Page() {
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const endTimeRef = useRef<number | null>(null);
-  const rafRef = useRef<number | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const isStart = !running && seconds === total;
 
@@ -38,7 +38,7 @@ export default function Page() {
   }
 
   useEffect(() => {
-    function update() {
+    function tick() {
       if (!running || !endTimeRef.current) return;
 
       const remaining = Math.max(
@@ -85,8 +85,6 @@ export default function Page() {
 
         return;
       }
-
-      rafRef.current = requestAnimationFrame(update);
     }
 
     if (running && !endTimeRef.current) {
@@ -94,11 +92,11 @@ export default function Page() {
     }
 
     if (running) {
-      rafRef.current = requestAnimationFrame(update);
+      intervalRef.current = setInterval(tick, 250);
     }
 
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [running]);
 
@@ -117,20 +115,14 @@ export default function Page() {
   }
 
   return (
-    <main className="w-screen h-screen bg-white overflow-hidden">
+    <main className="w-screen min-h-[100dvh] bg-white overflow-hidden">
       <div
-        className={`w-full h-full flex flex-col items-center justify-between ${
+        className={`w-full min-h-[100dvh] flex flex-col items-center justify-between ${
           isFullscreen ? "px-[2%] py-[2%]" : "px-[4%] py-[4%]"
         }`}
       >
         <div className="flex-1 flex items-center justify-center w-full">
-          <div
-            className={`aspect-square ${
-              isFullscreen
-                ? "w-[min(76vh,94vw)]"
-                : "w-[min(60vh,92vw)]"
-            }`}
-          >
+          <div className="aspect-square w-[min(70vh,95vw)]">
             <svg viewBox="0 0 200 200" className="w-full h-full">
               <circle cx="100" cy="100" r="100" fill="#f3f4f6" />
 
