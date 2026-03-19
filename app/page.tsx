@@ -1,37 +1,47 @@
 "use client";
 
+import { isOldIOS } from "@/lib/isOldIOS";
+
 export const dynamic = "force-dynamic";
 
-export default function Page() {
-  if (typeof window === "undefined") return null;
+export default function Home() {
 
-  const isOldIOS =
-    typeof navigator !== "undefined" &&
-    /OS 12_/.test(navigator.userAgent);
-
-  if (isOldIOS) {
+  // 1. fallback — ALTIJD eerst
+  if (isOldIOS()) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-white text-center p-6">
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+        textAlign: "center",
+        padding: "20px",
+        fontFamily: "sans-serif"
+      }}>
         <div>
-          <h1 className="text-xl font-semibold mb-4">Timbo Timer</h1>
-          <p className="text-gray-600">
-            This device is too old to run the timer.
-            <br />
-            Please use a newer device.
+          <h1>Device not supported</h1>
+          <p>
+            This timer does not work on older devices.<br />
+            Please use a newer browser or device.
           </p>
         </div>
-      </main>
+      </div>
     );
   }
 
-  return (
-    <main className="min-h-screen flex items-center justify-center bg-white">
-      <a
-        href="/timer"
-        className="px-6 py-3 rounded-xl bg-black text-white"
-      >
-        Open Timbo Timer
-      </a>
-    </main>
-  );
+  // 2. normale render
+  try {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-white">
+        <a
+          href="/timer"
+          className="px-6 py-3 rounded-xl bg-black text-white"
+        >
+          Open Timbo Timer
+        </a>
+      </main>
+    );
+  } catch (e) {
+    return <div>Something went wrong</div>;
+  }
 }
