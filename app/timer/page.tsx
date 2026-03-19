@@ -8,11 +8,10 @@ export default function Page() {
   const [seconds, setSeconds] = useState(900);
   const [total, setTotal] = useState(900);
   const [running, setRunning] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [audioUnlocked, setAudioUnlocked] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const endTimeRef = useRef<number | null>(null);
+  const intervalRef = useRef<any>(null);
 
   const isStart = !running && seconds === total;
 
@@ -31,79 +30,97 @@ export default function Page() {
       source.buffer = buffer;
       source.connect(ctx.destination);
       source.start(0);
-
-      setAudioUnlocked(true);
     } catch {}
   }
 
-  /* TIMER — PURE TIME BASED */
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!running || !endTimeRef.current) return;
+  /* CORE TIMER */
+  function updateTime() {
+    if (!endTimeRef.current) return;
 
-      const remaining = Math.max(
-        0,
-        Math.round((endTimeRef.current - Date.now()) / 1000)
-      );
+    const remaining = Math.max(
+      0,
+      Math.round((endTimeRef.current - Date.now()) / 1000)
+    );
 
-      setSeconds(remaining);
+    setSeconds(remaining);
 
-      if (remaining === 0) {
-        setRunning(false);
-        endTimeRef.current = null;
+    if (remaining === 0) {
+      setRunning(false);
+      endTimeRef.current = null;
 
-        try {
-          if (!audioCtxRef.current) {
-            audioCtxRef.current = new AudioContext();
-          }
-          const ctx = audioCtxRef.current;
+      try {
+        if (!audioCtxRef.current) {
+          audioCtxRef.current = new AudioContext();
+        }
+        const ctx = audioCtxRef.current;
 
-          const beep = (delay: number) => {
-            const o = ctx.createOscillator();
-            const g = ctx.createGain();
+        const beep = (delay: number) => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
 
-            o.type = "sine";
-            o.frequency.value = 880;
+          o.type = "sine";
+          o.frequency.value = 880;
 
-            o.connect(g);
-            g.connect(ctx.destination);
+          o.connect(g);
+          g.connect(ctx.destination);
 
-            const t = ctx.currentTime + delay;
+          const t = ctx.currentTime + delay;
 
-            g.gain.setValueAtTime(0.3, t);
-            g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+          g.gain.setValueAtTime(0.3, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
 
-            o.start(t);
-            o.stop(t + 0.2);
-          };
+          o.start(t);
+          o.stop(t + 0.2);
+        };
 
-          beep(0);
-          beep(0.3);
-          beep(1);
-          beep(1.3);
-        } catch {}
-      }
-    }, 300);
-
-    return () => clearInterval(interval);
-  }, [running]);
-
-  useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener("fullscreenchange", handler);
-    return () => document.removeEventListener("fullscreenchange", handler);
-  }, []);
-
-  function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      document.exitFullscreen();
+        beep(0);
+        beep(0.3);
+        beep(1);
+        beep(1.3);
+      } catch {}
     }
   }
 
+  useEffect(() => {
+    if (running) {
+      intervalRef.current = setInterval(updateTime, 250);
+    }
+
+    return () => clearInterval(intervalRef.current);
+  }, [running]);
+
+  /* iPad / Safari FIX */
+  useEffect(() => {
+    const onVisibility = () => {
+      if (!document.hidden && running) {
+        updateTime(); // force correct state
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", onVisibility);
+  }, [running]);
+
+  /* VIEWPORT HARD FIX */
+  useEffect(() => {
+    const setHeight = () => {
+      document.documentElement.style.setProperty(
+        "--vh",
+        `${window.innerHeight * 0.01}px`
+      );
+    };
+
+    setHeight();
+    window.addEventListener("resize", setHeight);
+    return () => window.removeEventListener("resize", setHeight);
+  }, []);
+
   return (
-    <main className="w-screen h-[100svh] min-h-screen bg-white overflow-hidden">
+    <main
+      style={{ height: "calc(var(--vh, 1vh) * 100)" }}
+      className="w-screen bg-white overflow-hidden"
+    >
       <div className="w-full h-full flex flex-col items-center justify-between px-[4%] py-[4%]">
         
         {/* TIMER */}
@@ -143,8 +160,7 @@ export default function Page() {
             <button
               key={sec}
               onClick={() => {
-                if (!audioUnlocked) unlockAudio();
-
+                unlockAudio();
                 setTotal(sec);
                 setSeconds(sec);
                 setRunning(true);
@@ -161,13 +177,14 @@ export default function Page() {
         <div className="flex gap-3 flex-wrap justify-center mt-3 mb-2">
           <button
             onClick={() => {
-              if (!audioUnlocked) unlockAudio();
+              unlockAudio();
 
               if (!running) {
                 endTimeRef.current = Date.now() + seconds * 1000;
               } else {
                 endTimeRef.current = null;
               }
+
               setRunning(!running);
             }}
             className="px-6 py-3 bg-black text-white rounded-xl"
@@ -184,13 +201,6 @@ export default function Page() {
             className="px-6 py-3 bg-gray-200 rounded-xl"
           >
             Reset
-          </button>
-
-          <button
-            onClick={toggleFullscreen}
-            className="px-6 py-3 bg-gray-200 rounded-xl"
-          >
-            {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
           </button>
         </div>
       </div>
