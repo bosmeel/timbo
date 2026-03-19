@@ -8,6 +8,8 @@ export default function Page() {
   const [seconds, setSeconds] = useState(900);
   const [total, setTotal] = useState(900);
   const [running, setRunning] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const endTimeRef = useRef<number | null>(null);
@@ -17,13 +19,21 @@ export default function Page() {
   const progress = total > 0 ? seconds / total : 0;
   const angle = progress * 360;
 
+  /* detect desktop */
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth > 900);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  /* audio unlock */
   function unlockAudio() {
     try {
       if (!audioCtxRef.current) {
         audioCtxRef.current = new AudioContext();
       }
       const ctx = audioCtxRef.current;
-
       const buffer = ctx.createBuffer(1, 1, 22050);
       const source = ctx.createBufferSource();
       source.buffer = buffer;
@@ -32,7 +42,7 @@ export default function Page() {
     } catch {}
   }
 
-  /* TIMER (tijd-gebaseerd, stabiel) */
+  /* TIMER (time-based, stabiel) */
   useEffect(() => {
     const interval = setInterval(() => {
       if (!running || !endTimeRef.current) return;
@@ -53,11 +63,26 @@ export default function Page() {
     return () => clearInterval(interval);
   }, [running]);
 
+  /* fullscreen */
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
   return (
     <main className="fixed inset-0 bg-white flex flex-col">
       
       {/* TIMER */}
-      <div className="flex-1 flex items-center justify-center relative z-0">
+      <div className="flex-1 flex items-center justify-center">
         <div className="aspect-square w-[min(70vh,95vw)]">
           <svg viewBox="0 0 200 200" className="w-full h-full pointer-events-none">
             
@@ -84,7 +109,7 @@ export default function Page() {
       </div>
 
       {/* UI */}
-      <div className="relative z-10 flex flex-col items-center pb-6 gap-3">
+      <div className="flex flex-col items-center gap-3 pb-6">
         
         <div className="text-3xl font-semibold">
           {formatTime(seconds)}
@@ -136,6 +161,16 @@ export default function Page() {
           >
             Reset
           </button>
+
+          {/* FULLSCREEN alleen desktop */}
+          {isDesktop && (
+            <button
+              onClick={toggleFullscreen}
+              className="px-6 py-3 bg-gray-200 rounded-xl"
+            >
+              {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+            </button>
+          )}
         </div>
       </div>
     </main>
