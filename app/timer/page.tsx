@@ -6,7 +6,8 @@ const PRESETS = [300, 600, 900, 1800, 3600];
 
 export default function Page() {
 
-  // 👇 FIX: client-side detectie
+  // 👇 3 states
+  const [checked, setChecked] = useState(false);
   const [isOldDevice, setIsOldDevice] = useState(false);
 
   useEffect(() => {
@@ -21,9 +22,16 @@ export default function Page() {
     if (isIOS && isOldVersion) {
       setIsOldDevice(true);
     }
+
+    setChecked(true);
   }, []);
 
-  // 👇 fallback (MOET vóór andere logica returnen)
+  // ❗ 1. eerst wachten (BELANGRIJK)
+  if (!checked) {
+    return null;
+  }
+
+  // ❗ 2. fallback
   if (isOldDevice) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-white text-center p-6">
@@ -39,10 +47,9 @@ export default function Page() {
     );
   }
 
-  // 👇 rest van je app (pas NA fallback)
+  // ❗ 3. ALLEEN hier start de timer (veilig)
 
   const [isFullscreen, setIsFullscreen] = useState(false);
-
   const [seconds, setSeconds] = useState(900);
   const [total, setTotal] = useState(900);
   const [running, setRunning] = useState(false);
@@ -195,17 +202,12 @@ export default function Page() {
   );
 }
 
-/* helpers */
+/* helpers blijven hetzelfde */
 function pie(cx: number, cy: number, r: number, angle: number) {
   const end = polar(cx, cy, r, angle);
   const large = Math.abs(angle) > 180 ? 1 : 0;
 
-  return [
-    "M", cx, cy,
-    "L", cx, cy - r,
-    "A", r, r, 0, large, 0, end.x, end.y,
-    "Z"
-  ].join(" ");
+  return ["M", cx, cy, "L", cx, cy - r, "A", r, r, 0, large, 0, end.x, end.y, "Z"].join(" ");
 }
 
 function polar(cx: number, cy: number, r: number, angle: number) {
