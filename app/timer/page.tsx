@@ -59,14 +59,10 @@ export default function Page() {
     } catch {}
   }
 
-  function enterFullscreen() {
+  function toggleFullscreen() {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
-    }
-  }
-
-  function exitFullscreen() {
-    if (document.fullscreenElement) {
+    } else {
       document.exitFullscreen();
     }
   }
@@ -93,31 +89,6 @@ export default function Page() {
 
   return (
     <main className="fixed inset-0 bg-white flex flex-col">
-
-      {/* DESKTOP FULLSCREEN BUTTON */}
-      {!isFullscreen && (
-        <div className="hidden md:flex justify-end p-4">
-          <button
-            onClick={enterFullscreen}
-            className="px-4 py-2 bg-gray-200 rounded-lg"
-          >
-            Fullscreen
-          </button>
-        </div>
-      )}
-
-      {/* EXIT FULLSCREEN */}
-      {isFullscreen && (
-        <div className="hidden md:flex justify-end p-4">
-          <button
-            onClick={exitFullscreen}
-            className="px-4 py-2 bg-gray-200 rounded-lg"
-          >
-            Exit fullscreen
-          </button>
-        </div>
-      )}
-
       <div className="flex-1 flex items-center justify-center">
         <div className="aspect-square w-[min(70vh,95vw)]">
           <svg viewBox="0 0 200 200" className="w-full h-full pointer-events-none">
@@ -193,6 +164,14 @@ export default function Page() {
             className="px-6 py-3 bg-gray-200 rounded-xl"
           >
             Reset
+          </button>
+
+          {/* DESKTOP ONLY FULLSCREEN */}
+          <button
+            onClick={toggleFullscreen}
+            className="hidden md:block px-6 py-3 bg-gray-200 rounded-xl"
+          >
+            {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
           </button>
         </div>
       </div>
