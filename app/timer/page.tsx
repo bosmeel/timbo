@@ -27,9 +27,13 @@ export default function Page() {
   }, []);
 
   // ❗ 1. eerst wachten (BELANGRIJK)
-  if (!checked) {
-    return null;
-  }
+ if (!checked) {
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-white">
+      <div className="text-gray-400 text-sm">Loading...</div>
+    </main>
+  );
+}
 
   // ❗ 2. fallback
   if (isOldDevice) {
