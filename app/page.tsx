@@ -1,6 +1,6 @@
 "use client";
 
-import { isOldIOS } from "@/lib/isOldIOS";
+import { isOldIOS } from "./lib/isOldIOS";
 
 export const dynamic = "force-dynamic";
 
