@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const PRESETS = [300, 600, 900, 1800, 3600];
@@ -80,17 +80,17 @@ export default function Page() {
             )}
 
             {isStart && (
-              <text
-                x="100"
-                y="105"
-                textAnchor="middle"
-                fontSize="15"
-                fill="#6b7280"
-                style={{ letterSpacing: "3px" }}
-              >
-                TIMBO
-              </text>
-            )}
+  <foreignObject x="40" y="80" width="120" height="40">
+    <div className="flex items-center justify-center">
+      <Image
+        src="/logo-timbo.svg"
+        alt="Timbo"
+        width={100}
+        height={25}
+      />
+    </div>
+  </foreignObject>
+)}
           </svg>
         </div>
       </div>
