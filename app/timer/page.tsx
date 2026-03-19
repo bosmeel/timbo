@@ -11,7 +11,6 @@ export default function Page() {
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const endTimeRef = useRef<number | null>(null);
-  const intervalRef = useRef<any>(null);
 
   const isStart = !running && seconds === total;
 
@@ -33,128 +32,64 @@ export default function Page() {
     } catch {}
   }
 
-  /* CORE TIMER */
-  function updateTime() {
-    if (!endTimeRef.current) return;
-
-    const remaining = Math.max(
-      0,
-      Math.round((endTimeRef.current - Date.now()) / 1000)
-    );
-
-    setSeconds(remaining);
-
-    if (remaining === 0) {
-      setRunning(false);
-      endTimeRef.current = null;
-
-      try {
-        if (!audioCtxRef.current) {
-          audioCtxRef.current = new AudioContext();
-        }
-        const ctx = audioCtxRef.current;
-
-        const beep = (delay: number) => {
-          const o = ctx.createOscillator();
-          const g = ctx.createGain();
-
-          o.type = "sine";
-          o.frequency.value = 880;
-
-          o.connect(g);
-          g.connect(ctx.destination);
-
-          const t = ctx.currentTime + delay;
-
-          g.gain.setValueAtTime(0.3, t);
-          g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-
-          o.start(t);
-          o.stop(t + 0.2);
-        };
-
-        beep(0);
-        beep(0.3);
-        beep(1);
-        beep(1.3);
-      } catch {}
-    }
-  }
-
+  /* TIMER (tijd-gebaseerd, stabiel) */
   useEffect(() => {
-    if (running) {
-      intervalRef.current = setInterval(updateTime, 250);
-    }
+    const interval = setInterval(() => {
+      if (!running || !endTimeRef.current) return;
 
-    return () => clearInterval(intervalRef.current);
-  }, [running]);
-
-  /* iPad / Safari FIX */
-  useEffect(() => {
-    const onVisibility = () => {
-      if (!document.hidden && running) {
-        updateTime(); // force correct state
-      }
-    };
-
-    document.addEventListener("visibilitychange", onVisibility);
-    return () =>
-      document.removeEventListener("visibilitychange", onVisibility);
-  }, [running]);
-
-  /* VIEWPORT HARD FIX */
-  useEffect(() => {
-    const setHeight = () => {
-      document.documentElement.style.setProperty(
-        "--vh",
-        `${window.innerHeight * 0.01}px`
+      const remaining = Math.max(
+        0,
+        Math.round((endTimeRef.current - Date.now()) / 1000)
       );
-    };
 
-    setHeight();
-    window.addEventListener("resize", setHeight);
-    return () => window.removeEventListener("resize", setHeight);
-  }, []);
+      setSeconds(remaining);
+
+      if (remaining === 0) {
+        setRunning(false);
+        endTimeRef.current = null;
+      }
+    }, 300);
+
+    return () => clearInterval(interval);
+  }, [running]);
 
   return (
-    <main
-      style={{ height: "calc(var(--vh, 1vh) * 100)" }}
-      className="w-screen bg-white overflow-hidden"
-    >
-      <div className="w-full h-full flex flex-col items-center justify-between px-[4%] py-[4%]">
-        
-        {/* TIMER */}
-        <div className="flex-1 flex items-center justify-center w-full">
-          <div className="aspect-square w-[min(70vh,95vw)]">
-            <svg viewBox="0 0 200 200" className="w-full h-full">
-              <circle cx="100" cy="100" r="100" fill="#f3f4f6" />
+    <main className="fixed inset-0 bg-white flex flex-col">
+      
+      {/* TIMER */}
+      <div className="flex-1 flex items-center justify-center relative z-0">
+        <div className="aspect-square w-[min(70vh,95vw)]">
+          <svg viewBox="0 0 200 200" className="w-full h-full pointer-events-none">
+            
+            <circle cx="100" cy="100" r="100" fill="#f3f4f6" />
 
-              {!isStart && progress > 0 && (
-                <path d={pie(100, 100, 100, -angle)} fill="#dc2626" />
-              )}
+            {!isStart && progress > 0 && (
+              <path d={pie(100, 100, 100, -angle)} fill="#dc2626" />
+            )}
 
-              {isStart && (
-                <text
-                  x="100"
-                  y="105"
-                  textAnchor="middle"
-                  fontSize="15"
-                  fill="#6b7280"
-                  style={{ letterSpacing: "3px" }}
-                >
-                  TIMBO
-                </text>
-              )}
-            </svg>
-          </div>
+            {isStart && (
+              <text
+                x="100"
+                y="105"
+                textAnchor="middle"
+                fontSize="15"
+                fill="#6b7280"
+                style={{ letterSpacing: "3px" }}
+              >
+                TIMBO
+              </text>
+            )}
+          </svg>
         </div>
+      </div>
 
-        {/* TIME */}
-        <div className="text-3xl font-semibold mb-2">
+      {/* UI */}
+      <div className="relative z-10 flex flex-col items-center pb-6 gap-3">
+        
+        <div className="text-3xl font-semibold">
           {formatTime(seconds)}
         </div>
 
-        {/* PRESETS */}
         <div className="flex gap-3 flex-wrap justify-center">
           {PRESETS.map((sec) => (
             <button
@@ -173,8 +108,7 @@ export default function Page() {
           ))}
         </div>
 
-        {/* CONTROLS */}
-        <div className="flex gap-3 flex-wrap justify-center mt-3 mb-2">
+        <div className="flex gap-3 flex-wrap justify-center">
           <button
             onClick={() => {
               unlockAudio();
