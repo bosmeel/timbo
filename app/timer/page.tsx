@@ -96,7 +96,7 @@ export default function Page() {
       </div>
 
       <div className="flex flex-col items-center gap-3 pb-6">
-       <div className="text-3xl font-semibold text-black">
+        <div className="text-3xl font-semibold text-black">
           {formatTime(seconds)}
         </div>
 
@@ -142,14 +142,14 @@ export default function Page() {
               setRunning(false);
               endTimeRef.current = null;
             }}
-            className="px-6 py-3 bg-gray-200 rounded-xl"
+            className="px-6 py-3 bg-gray-200 text-black rounded-xl"
           >
             Reset
           </button>
 
           <button
             onClick={toggleFullscreen}
-            className="hidden md:block px-6 py-3 bg-gray-200 rounded-xl"
+            className="hidden md:block px-6 py-3 bg-gray-200 text-black rounded-xl"
           >
             {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
           </button>
