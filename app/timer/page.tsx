@@ -9,17 +9,23 @@ export default function Page() {
     typeof navigator !== "undefined" &&
     /OS 12_/.test(navigator.userAgent);
 
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
+
   if (isOldIOS) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-white text-center p-6">
         <div>
           <h1 className="text-xl font-semibold mb-4">Timbo Timer</h1>
           <p className="text-gray-600">
-            This iPad is too old to run the timer.
+            This device is too old to run the timer.
             <br />
-            Many school devices have outdated software.
-            <br />
-            Please try a newer device.
+            Please use a newer device.
           </p>
         </div>
       </main>
@@ -53,6 +59,18 @@ export default function Page() {
     } catch {}
   }
 
+  function enterFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    }
+  }
+
+  function exitFullscreen() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+  }
+
   useEffect(() => {
     const interval = setInterval(() => {
       if (!running || !endTimeRef.current) return;
@@ -75,7 +93,31 @@ export default function Page() {
 
   return (
     <main className="fixed inset-0 bg-white flex flex-col">
-      
+
+      {/* DESKTOP FULLSCREEN BUTTON */}
+      {!isFullscreen && (
+        <div className="hidden md:flex justify-end p-4">
+          <button
+            onClick={enterFullscreen}
+            className="px-4 py-2 bg-gray-200 rounded-lg"
+          >
+            Fullscreen
+          </button>
+        </div>
+      )}
+
+      {/* EXIT FULLSCREEN */}
+      {isFullscreen && (
+        <div className="hidden md:flex justify-end p-4">
+          <button
+            onClick={exitFullscreen}
+            className="px-4 py-2 bg-gray-200 rounded-lg"
+          >
+            Exit fullscreen
+          </button>
+        </div>
+      )}
+
       <div className="flex-1 flex items-center justify-center">
         <div className="aspect-square w-[min(70vh,95vw)]">
           <svg viewBox="0 0 200 200" className="w-full h-full pointer-events-none">
