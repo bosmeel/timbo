@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "....",
-  description: "....",
+  title: "...",
+  description: "...",
   icons: {
     icon: "/favicon.svg",
   },
