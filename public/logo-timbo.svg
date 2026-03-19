@@ -1,0 +1,15 @@
+<svg width="320" height="80" viewBox="0 0 320 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <text
+    x="0"
+    y="52"
+    font-family="system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+    font-size="44"
+    font-weight="600"
+    letter-spacing="2"
+    fill="#000000"
+  >
+    TIMBO
+  </text>
+
+  <circle cx="300" cy="28" r="6" fill="#dc2626" />
+</svg>
