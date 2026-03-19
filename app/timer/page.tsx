@@ -9,6 +9,7 @@ export default function Page() {
   const [total, setTotal] = useState(900);
   const [running, setRunning] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const endTimeRef = useRef<number | null>(null);
@@ -18,6 +19,23 @@ export default function Page() {
 
   const progress = total > 0 ? seconds / total : 0;
   const angle = progress * 360;
+
+  function unlockAudio() {
+    try {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new AudioContext();
+      }
+      const ctx = audioCtxRef.current;
+
+      const buffer = ctx.createBuffer(1, 1, 22050);
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      source.start(0);
+
+      setAudioUnlocked(true);
+    } catch {}
+  }
 
   useEffect(() => {
     function update() {
@@ -121,7 +139,7 @@ export default function Page() {
                   fill="#6b7280"
                   style={{ letterSpacing: "3px" }}
                 >
-                  TIMBA
+                  TIMBO
                 </text>
               )}
             </svg>
@@ -137,6 +155,8 @@ export default function Page() {
             <button
               key={sec}
               onClick={() => {
+                if (!audioUnlocked) unlockAudio();
+
                 setTotal(sec);
                 setSeconds(sec);
                 setRunning(true);
@@ -152,6 +172,8 @@ export default function Page() {
         <div className="flex gap-3 flex-wrap justify-center mt-3 mb-2">
           <button
             onClick={() => {
+              if (!audioUnlocked) unlockAudio();
+
               if (!running) {
                 endTimeRef.current = Date.now() + seconds * 1000;
               } else {
