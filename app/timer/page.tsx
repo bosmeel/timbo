@@ -70,6 +70,17 @@ export default function Page() {
 
   return (
     <main className="fixed inset-0 bg-white flex flex-col">
+
+      {/* logo bovenin */}
+      <div className="flex justify-center pt-4">
+        <Image
+          src="/logo-timbo-final.svg"
+          alt="Timbo"
+          width={120}
+          height={30}
+        />
+      </div>
+
       <div className="flex-1 flex items-center justify-center">
         <div className="aspect-square w-[min(70vh,95vw)]">
           <svg viewBox="0 0 200 200" className="w-full h-full pointer-events-none">
@@ -80,17 +91,17 @@ export default function Page() {
             )}
 
             {isStart && (
-  <foreignObject x="40" y="80" width="120" height="40">
-    <div className="flex items-center justify-center">
-      <Image
-        src="/logo-timbo.svg"
-        alt="Timbo"
-        width={100}
-        height={25}
-      />
-    </div>
-  </foreignObject>
-)}
+              <foreignObject x="40" y="80" width="120" height="40">
+                <div className="flex items-center justify-center">
+                  <Image
+                    src="/logo-timbo-final.svg"
+                    alt="Timbo"
+                    width={100}
+                    height={25}
+                  />
+                </div>
+              </foreignObject>
+            )}
           </svg>
         </div>
       </div>

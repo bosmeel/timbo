@@ -13,16 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "...",
-  description: "...",
+  title: "Timbo",
+  description: "Simple visual timer for focus and structure",
  icons: {
-  icon: [
-    { url: "/favicon.svg", type: "image/svg+xml" },
-    { url: "/favicon.svg", sizes: "32x32", type: "image/svg+xml" },
-  ],
-  apple: [
-    { url: "/favicon.svg", sizes: "180x180" },
-  ],
+  icon: "/favicon.svg",
+  shortcut: "/favicon.svg",
+  apple: "/favicon.svg",
 },
 };
 
