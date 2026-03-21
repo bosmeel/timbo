@@ -15,9 +15,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "...",
   description: "...",
-  icons: {
-    icon: "/favicon.svg",
-  },
+ icons: {
+  icon: [
+    { url: "/favicon.svg", type: "image/svg+xml" },
+    { url: "/favicon.svg", sizes: "32x32", type: "image/svg+xml" },
+  ],
+  apple: [
+    { url: "/favicon.svg", sizes: "180x180" },
+  ],
+},
 };
 
 /* viewport fix (houden!) */
