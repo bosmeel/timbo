@@ -84,34 +84,34 @@ export default function Page() {
       <div className="flex-1 flex items-center justify-center">
         <div className="aspect-square w-[min(70vh,95vw)]">
           <svg viewBox="0 0 200 200" className="w-full h-full pointer-events-none">
-            <circle cx="100" cy="100" r="100" fill="#f3f4f6" />
+            <circle cx="100" cy="100" r="100" fill="#f3f4f6" stroke="#e5e7eb" strokeWidth="2" />
 
             {!isStart && progress > 0 && (
-              <path d={pie(100, 100, 100, -angle)} fill="#dc2626" />
+           <path d={pie(100, 100, 100, -angle)} fill="#e11d48" />
             )}
 
             {isStart && (
-              <foreignObject x="40" y="80" width="120" height="40">
-                <div className="flex items-center justify-center">
-                  <Image
-                    src="/logo-timbo-final.svg"
-                    alt="Timbo"
-                    width={100}
-                    height={25}
-                  />
-                </div>
-              </foreignObject>
+              <foreignObject x="30" y="70" width="140" height="60">
+  <div className="flex items-center justify-center h-full">
+    <Image
+      src="/logo-timbo-final.svg"
+      alt="Timbo"
+      width={120}
+      height={30}
+    />
+  </div>
+</foreignObject>
             )}
           </svg>
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-3 pb-6">
-        <div className="text-3xl font-semibold text-black">
+      <div className="flex flex-col items-center gap-4 pb-8">
+        <div className="text-5xl font-semibold text-black tracking-wide">
           {formatTime(seconds)}
         </div>
 
-        <div className="flex gap-3 flex-wrap justify-center">
+        <div className="flex gap-4 flex-wrap justify-center">
           {PRESETS.map((sec) => (
             <button
               key={sec}
@@ -122,14 +122,14 @@ export default function Page() {
                 setRunning(true);
                 endTimeRef.current = Date.now() + sec * 1000;
               }}
-              className="px-5 py-3 bg-black text-white rounded-xl"
+              className="px-5 py-3 bg-gray-100 text-black rounded-xl"
             >
               {sec / 60}
             </button>
           ))}
         </div>
 
-        <div className="flex gap-3 flex-wrap justify-center">
+        <div className="flex gap-4 flex-wrap justify-center">
           <button
             onClick={() => {
               unlockAudio();
