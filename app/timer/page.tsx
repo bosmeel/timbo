@@ -185,3 +185,29 @@ export default function Page() {
     </main>
   );
 }
+/* helpers */
+function pie(cx: number, cy: number, r: number, angle: number) {
+  const end = polar(cx, cy, r, angle);
+  const large = Math.abs(angle) > 180 ? 1 : 0;
+
+  return [
+    "M", cx, cy,
+    "L", cx, cy - r,
+    "A", r, r, 0, large, 0, end.x, end.y,
+    "Z"
+  ].join(" ");
+}
+
+function polar(cx: number, cy: number, r: number, angle: number) {
+  const rad = ((angle - 90) * Math.PI) / 180;
+  return {
+    x: cx + r * Math.cos(rad),
+    y: cy + r * Math.sin(rad),
+  };
+}
+
+function formatTime(sec: number) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
