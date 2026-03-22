@@ -8,7 +8,7 @@ export default function Home() {
     <main className="min-h-screen flex flex-col items-center justify-center bg-white px-6">
 
   <Image
-    src="/logo-timbo.svg"
+    src="/logo-timbo-final.svg"
     alt="Timbo"
     width={160}
     height={40}

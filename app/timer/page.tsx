@@ -11,7 +11,7 @@ export default function Page() {
   const [total, setTotal] = useState(900);
   const [running, setRunning] = useState(false);
 
-  const audioCtxRef = useRef<AudioContext | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const endTimeRef = useRef<number | null>(null);
 
   const isStart = !running && seconds === total;
@@ -21,16 +21,20 @@ export default function Page() {
 
   function unlockAudio() {
     try {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new AudioContext();
+      if (audioRef.current) {
+        audioRef.current.play().catch(() => {});
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
       }
-      const ctx = audioCtxRef.current;
+    } catch {}
+  }
 
-      const buffer = ctx.createBuffer(1, 1, 22050);
-      const source = ctx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(ctx.destination);
-      source.start(0);
+  function playBeep() {
+    try {
+      if (!audioRef.current) return;
+
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => {});
     } catch {}
   }
 
@@ -62,6 +66,7 @@ export default function Page() {
       if (remaining === 0) {
         setRunning(false);
         endTimeRef.current = null;
+        playBeep();
       }
     }, 300);
 
@@ -69,45 +74,52 @@ export default function Page() {
   }, [running]);
 
   return (
-    <main className="fixed inset-0 bg-white flex flex-col">
+    <main className="fixed inset-0 bg-white flex flex-col pt-8">
 
       {/* logo bovenin */}
       <div className="flex justify-center pt-4">
         <Image
           src="/logo-timbo-final.svg"
           alt="Timbo"
-          width={120}
-          height={30}
+          width={100}
+          height={25}
         />
       </div>
 
       <div className="flex-1 flex items-center justify-center">
-        <div className="aspect-square w-[min(70vh,95vw)]">
+        <div className="aspect-square w-[min(60vh,90vw)]">
           <svg viewBox="0 0 200 200" className="w-full h-full pointer-events-none">
-            <circle cx="100" cy="100" r="100" fill="#f3f4f6" stroke="#e5e7eb" strokeWidth="2" />
+            <circle
+              cx="100"
+              cy="100"
+              r="98"
+              fill="#f3f4f6"
+              stroke="#e5e7eb"
+              strokeWidth="2"
+            />
 
             {!isStart && progress > 0 && (
-           <path d={pie(100, 100, 100, -angle)} fill="#e11d48" />
+              <path d={pie(100, 100, 100, -angle)} fill="#e11d48" />
             )}
 
             {isStart && (
               <foreignObject x="30" y="70" width="140" height="60">
-  <div className="flex items-center justify-center h-full">
-    <Image
-      src="/logo-timbo-final.svg"
-      alt="Timbo"
-      width={120}
-      height={30}
-    />
-  </div>
-</foreignObject>
+                <div className="flex items-center justify-center h-full">
+                  <Image
+                    src="/logo-timbo-final.svg"
+                    alt="Timbo"
+                    width={100}
+                    height={25}
+                  />
+                </div>
+              </foreignObject>
             )}
           </svg>
         </div>
       </div>
 
       <div className="flex flex-col items-center gap-4 pb-8">
-        <div className="text-5xl font-semibold text-black tracking-wide my-6">
+        <div className="text-5xl font-semibold text-black tracking-wide my-4">
           {formatTime(seconds)}
         </div>
 
@@ -166,6 +178,9 @@ export default function Page() {
           </button>
         </div>
       </div>
+
+      {/* 🔊 audio element */}
+      <audio ref={audioRef} src="/beep.mp3" preload="auto" />
     </main>
   );
 }
