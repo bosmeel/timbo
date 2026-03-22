@@ -21,11 +21,13 @@ export default function Page() {
 
   function unlockAudio() {
     try {
-      if (audioRef.current) {
-        audioRef.current.play().catch(() => {});
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }
+      if (!audioRef.current) return;
+
+      // 🔑 unlock op mobile
+      audioRef.current.play().then(() => {
+        audioRef.current?.pause();
+        audioRef.current!.currentTime = 0;
+      }).catch(() => {});
     } catch {}
   }
 
@@ -76,7 +78,6 @@ export default function Page() {
   return (
     <main className="fixed inset-0 bg-white flex flex-col pt-8">
 
-      {/* logo bovenin */}
       <div className="flex justify-center pt-4">
         <Image
           src="/logo-timbo-final.svg"
@@ -179,30 +180,8 @@ export default function Page() {
         </div>
       </div>
 
-      {/* 🔊 audio element */}
+      {/* 🔊 AUDIO */}
       <audio ref={audioRef} src="/beep.mp3" preload="auto" />
     </main>
   );
-}
-
-/* helpers */
-function pie(cx: number, cy: number, r: number, angle: number) {
-  const end = polar(cx, cy, r, angle);
-  const large = Math.abs(angle) > 180 ? 1 : 0;
-
-  return ["M", cx, cy, "L", cx, cy - r, "A", r, r, 0, large, 0, end.x, end.y, "Z"].join(" ");
-}
-
-function polar(cx: number, cy: number, r: number, angle: number) {
-  const rad = ((angle - 90) * Math.PI) / 180;
-  return {
-    x: cx + r * Math.cos(rad),
-    y: cy + r * Math.sin(rad),
-  };
-}
-
-function formatTime(sec: number) {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
 }
