@@ -107,7 +107,7 @@ export default function Page() {
       </div>
 
       <div className="flex flex-col items-center gap-4 pb-8">
-        <div className="text-5xl font-semibold text-black tracking-wide">
+        <div className="text-5xl font-semibold text-black tracking-wide my-6">
           {formatTime(seconds)}
         </div>
 
