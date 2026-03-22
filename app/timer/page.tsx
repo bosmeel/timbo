@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-const PRESETS = [300, 600, 900, 1800, 3600];
+const PRESETS = [120, 180, 300, 600, 900, 1200, 1800, 3600]; // 2–60 min
 
 export default function Page() {
 
@@ -19,24 +19,20 @@ export default function Page() {
   const progress = total > 0 ? seconds / total : 0;
   const angle = progress * 360;
 
-  // 🔑 FIXED unlock
   function unlockAudio() {
     try {
       if (!audioRef.current) return;
 
       const audio = audioRef.current;
-
       audio.load();
 
       const p = audio.play();
-
-      if (p !== undefined) {
+      if (p) {
         p.then(() => {
           audio.pause();
           audio.currentTime = 0;
         }).catch(() => {});
       }
-
     } catch {}
   }
 
@@ -45,15 +41,8 @@ export default function Page() {
       if (!audioRef.current) return;
 
       const audio = audioRef.current;
-
       audio.currentTime = 0;
-
-      const p = audio.play();
-
-      if (p !== undefined) {
-        p.catch(() => {});
-      }
-
+      audio.play().catch(() => {});
     } catch {}
   }
 
@@ -95,18 +84,17 @@ export default function Page() {
   return (
     <main className="fixed inset-0 bg-white flex flex-col pt-8">
 
+      {/* logo */}
       <div className="flex justify-center pt-4">
-        <Image
-          src="/logo-timbo-final.svg"
-          alt="Timbo"
-          width={100}
-          height={25}
-        />
+        <Image src="/logo-timbo-final.svg" alt="Timbo" width={100} height={25} />
       </div>
 
+      {/* TIMER */}
       <div className="flex-1 flex items-center justify-center">
         <div className="aspect-square w-[min(60vh,90vw)]">
-          <svg viewBox="0 0 200 200" className="w-full h-full pointer-events-none">
+          <svg viewBox="0 0 200 200" className="w-full h-full">
+
+            {/* 60 min referentie ring */}
             <circle
               cx="100"
               cy="100"
@@ -116,32 +104,50 @@ export default function Page() {
               strokeWidth="2"
             />
 
+            {/* subtiele ticks (4 kwarten) */}
+            {[0, 90, 180, 270].map((deg) => {
+              const p1 = polar(100, 100, 90, deg);
+              const p2 = polar(100, 100, 98, deg);
+              return (
+                <line
+                  key={deg}
+                  x1={p1.x}
+                  y1={p1.y}
+                  x2={p2.x}
+                  y2={p2.y}
+                  stroke="#d1d5db"
+                  strokeWidth="2"
+                />
+              );
+            })}
+
+            {/* rode timer */}
             {!isStart && progress > 0 && (
-              <path d={pie(100, 100, 100, -angle)} fill="#e11d48" />
+              <path d={pie(100, 100, 98, -angle)} fill="#e11d48" />
             )}
 
+            {/* logo start */}
             {isStart && (
               <foreignObject x="30" y="70" width="140" height="60">
                 <div className="flex items-center justify-center h-full">
-                  <Image
-                    src="/logo-timbo-final.svg"
-                    alt="Timbo"
-                    width={100}
-                    height={25}
-                  />
+                  <Image src="/logo-timbo-final.svg" alt="Timbo" width={100} height={25} />
                 </div>
               </foreignObject>
             )}
+
           </svg>
         </div>
       </div>
 
+      {/* UI */}
       <div className="flex flex-col items-center gap-4 pb-8">
-        <div className="text-5xl font-semibold text-black tracking-wide my-4">
+
+        <div className="text-5xl font-semibold text-black my-4">
           {formatTime(seconds)}
         </div>
 
-        <div className="flex gap-4 flex-wrap justify-center">
+        {/* presets */}
+        <div className="flex gap-3 flex-wrap justify-center max-w-[320px]">
           {PRESETS.map((sec) => (
             <button
               key={sec}
@@ -152,24 +158,24 @@ export default function Page() {
                 setRunning(true);
                 endTimeRef.current = Date.now() + sec * 1000;
               }}
-              className="px-5 py-3 bg-gray-100 text-black rounded-xl"
+              className="px-4 py-2 bg-gray-100 text-black rounded-xl"
             >
               {sec / 60}
             </button>
           ))}
         </div>
 
-        <div className="flex gap-4 flex-wrap justify-center">
+        {/* controls */}
+        <div className="flex gap-3 flex-wrap justify-center">
+
           <button
             onClick={() => {
               unlockAudio();
-
               if (!running) {
                 endTimeRef.current = Date.now() + seconds * 1000;
               } else {
                 endTimeRef.current = null;
               }
-
               setRunning(!running);
             }}
             className="px-6 py-3 bg-black text-white rounded-xl"
@@ -188,12 +194,37 @@ export default function Page() {
             Reset
           </button>
 
+          {/* +1 minuut */}
+          <button
+            onClick={() => {
+              const newSec = seconds + 60;
+              setSeconds(newSec);
+              setTotal(newSec);
+              endTimeRef.current = Date.now() + newSec * 1000;
+            }}
+            className="px-4 py-3 bg-gray-200 text-black rounded-xl"
+          >
+            +1 min
+          </button>
+
+          {/* geluid test */}
+          <button
+            onClick={() => {
+              unlockAudio();
+              playBeep();
+            }}
+            className="px-4 py-3 bg-gray-200 text-black rounded-xl"
+          >
+            🔊
+          </button>
+
           <button
             onClick={toggleFullscreen}
             className="hidden md:block px-6 py-3 bg-gray-200 text-black rounded-xl"
           >
             {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
           </button>
+
         </div>
       </div>
 
