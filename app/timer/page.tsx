@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-const PRESETS = [120, 180, 300, 600, 900, 1200, 1800, 3600]; // 2–60 min
+const PRESETS = [120, 180, 300, 600, 900, 1200, 1800, 2700, 3600]; // 2–60 min
 
 export default function Page() {
 
@@ -155,8 +155,8 @@ export default function Page() {
                 unlockAudio();
                 setTotal(sec);
                 setSeconds(sec);
-                setRunning(true);
-                endTimeRef.current = Date.now() + sec * 1000;
+                setRunning(false);
+endTimeRef.current = null;
               }}
               className="px-4 py-2 bg-gray-100 text-black rounded-xl"
             >
@@ -169,19 +169,21 @@ export default function Page() {
         <div className="flex gap-3 flex-wrap justify-center">
 
           <button
-            onClick={() => {
-              unlockAudio();
-              if (!running) {
-                endTimeRef.current = Date.now() + seconds * 1000;
-              } else {
-                endTimeRef.current = null;
-              }
-              setRunning(!running);
-            }}
-            className="px-6 py-3 bg-black text-white rounded-xl"
-          >
-            {running ? "Pause" : "Start"}
-          </button>
+  onClick={() => {
+    unlockAudio();
+
+    if (!running) {
+      endTimeRef.current = Date.now() + seconds * 1000;
+      setRunning(true);
+    } else {
+      endTimeRef.current = null;
+      setRunning(false);
+    }
+  }}
+  className="px-6 py-3 bg-black text-white rounded-xl"
+>
+  {running ? "Pause" : "Start"}
+</button>
 
           <button
             onClick={() => {
@@ -194,30 +196,23 @@ export default function Page() {
             Reset
           </button>
 
-          {/* +1 minuut */}
           <button
-            onClick={() => {
-              const newSec = seconds + 60;
-              setSeconds(newSec);
-              setTotal(newSec);
-              endTimeRef.current = Date.now() + newSec * 1000;
-            }}
-            className="px-4 py-3 bg-gray-200 text-black rounded-xl"
-          >
-            +1 min
-          </button>
+  onClick={() => {
+    const newTotal = total + 60;
 
-          {/* geluid test */}
-          <button
-            onClick={() => {
-              unlockAudio();
-              playBeep();
-            }}
-            className="px-4 py-3 bg-gray-200 text-black rounded-xl"
-          >
-            🔊
-          </button>
+    if (running && endTimeRef.current) {
+      endTimeRef.current += 60000;
+    }
 
+    setTotal(newTotal);
+    setSeconds(prev => prev + 60);
+  }}
+  className="px-4 py-3 bg-gray-200 text-black rounded-xl"
+>
+  +1 min
+</button>
+
+          
           <button
             onClick={toggleFullscreen}
             className="hidden md:block px-6 py-3 bg-gray-200 text-black rounded-xl"
