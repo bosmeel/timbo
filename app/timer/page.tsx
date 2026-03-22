@@ -20,21 +20,28 @@ export default function Page() {
   const angle = progress * 360;
 
   function unlockAudio() {
-    try {
-      if (!audioRef.current) return;
+  try {
+    if (!audioRef.current) return;
 
-      const audio = audioRef.current;
-      audio.load();
+    const audio = audioRef.current;
 
-      const p = audio.play();
-      if (p) {
-        p.then(() => {
-          audio.pause();
-          audio.currentTime = 0;
-        }).catch(() => {});
-      }
-    } catch {}
-  }
+    // alleen "unlocken", niet hoorbaar spelen
+    audio.muted = true;
+
+    const p = audio.play();
+
+    if (p !== undefined) {
+      p.then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.muted = false;
+      }).catch(() => {
+        audio.muted = false;
+      });
+    }
+
+  } catch {}
+}
 
   function playBeep() {
     try {
