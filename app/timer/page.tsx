@@ -82,7 +82,7 @@ export default function Page() {
   }, [running]);
 
   return (
-    <main className="fixed inset-0 bg-white flex flex-col pt-8">
+    <main className="min-h-dvh bg-white flex flex-col overflow-y-autopt-8">
 
       {/* logo */}
       <div className="flex justify-center pt-4">
@@ -140,7 +140,7 @@ export default function Page() {
       </div>
 
       {/* UI */}
-      <div className="flex flex-col items-center gap-4 pb-8">
+      <div className="flex flex-col items-center gap-4 pb-[calc(80px+env(safe-area-inset-bottom))]">
 
         <div className="text-5xl font-semibold text-black my-4">
           {formatTime(seconds)}
