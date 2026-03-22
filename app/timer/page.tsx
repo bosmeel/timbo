@@ -19,15 +19,24 @@ export default function Page() {
   const progress = total > 0 ? seconds / total : 0;
   const angle = progress * 360;
 
+  // 🔑 FIXED unlock
   function unlockAudio() {
     try {
       if (!audioRef.current) return;
 
-      // 🔑 unlock op mobile
-      audioRef.current.play().then(() => {
-        audioRef.current?.pause();
-        audioRef.current!.currentTime = 0;
-      }).catch(() => {});
+      const audio = audioRef.current;
+
+      audio.load();
+
+      const p = audio.play();
+
+      if (p !== undefined) {
+        p.then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+        }).catch(() => {});
+      }
+
     } catch {}
   }
 
@@ -35,8 +44,16 @@ export default function Page() {
     try {
       if (!audioRef.current) return;
 
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => {});
+      const audio = audioRef.current;
+
+      audio.currentTime = 0;
+
+      const p = audio.play();
+
+      if (p !== undefined) {
+        p.catch(() => {});
+      }
+
     } catch {}
   }
 
@@ -180,22 +197,17 @@ export default function Page() {
         </div>
       </div>
 
-      {/* 🔊 AUDIO */}
       <audio ref={audioRef} src="/beep.mp3" preload="auto" />
     </main>
   );
 }
+
 /* helpers */
 function pie(cx: number, cy: number, r: number, angle: number) {
   const end = polar(cx, cy, r, angle);
   const large = Math.abs(angle) > 180 ? 1 : 0;
 
-  return [
-    "M", cx, cy,
-    "L", cx, cy - r,
-    "A", r, r, 0, large, 0, end.x, end.y,
-    "Z"
-  ].join(" ");
+  return ["M", cx, cy, "L", cx, cy - r, "A", r, r, 0, large, 0, end.x, end.y, "Z"].join(" ");
 }
 
 function polar(cx: number, cy: number, r: number, angle: number) {
