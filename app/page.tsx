@@ -38,28 +38,31 @@ export default function Home() {
       {/* use cases (direct naar timer) */}
       <div className="mt-10 w-full max-w-md grid grid-cols-1 gap-3">
 
-        <Link
-          href="/timer?mode=focus"
-          className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50"
-        >
-          Focus Timer
-        </Link>
+  <Link
+    href="/timer?mode=focus"
+    className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
+  >
+    <div className="font-medium">Focus Timer</div>
+    <div className="text-xs text-gray-500">Study, homework, deep work</div>
+  </Link>
 
-        <Link
-          href="/timer?mode=classroom"
-          className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50"
-        >
-          Classroom Timer
-        </Link>
+  <Link
+    href="/timer?mode=classroom"
+    className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
+  >
+    <div className="font-medium">Classroom Timer</div>
+    <div className="text-xs text-gray-500">Activities, transitions, lessons</div>
+  </Link>
 
-        <Link
-          href="/timer?mode=game"
-          className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50"
-        >
-          Game Timer
-        </Link>
+  <Link
+    href="/timer?mode=game"
+    className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
+  >
+    <div className="font-medium">Game Timer</div>
+    <div className="text-xs text-gray-500">Board games and time challenges</div>
+  </Link>
 
-      </div>
+</div>
 
       {/* footer links */}
       <div className="mt-10 text-sm text-gray-400 flex gap-4 justify-center flex-wrap">
