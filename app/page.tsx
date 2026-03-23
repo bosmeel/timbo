@@ -40,12 +40,6 @@ export default function Home() {
   <a href="/visual-timer-for-kids">Learn</a>
 </div>
 
-      <p className="mt-6 text-sm text-gray-500">
-  <Link href="/visual-timer-for-kids">
-    Learn more about visual timers
-  </Link>
-</p>
-
 <p className="mt-4 text-sm text-gray-400">
   <a href="/about">About</a>
 </p>
