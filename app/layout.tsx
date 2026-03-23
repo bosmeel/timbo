@@ -21,6 +21,9 @@ export const metadata: Metadata = {
     shortcut: "/favicon.svg",
     apple: "/favicon.svg",
   },
+  other: {
+    "google-adsense-account": "ca-pub-5866549959429332",
+  },
 };
 
 /* viewport fix (houden!) */
@@ -37,17 +40,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5866549959429332"
           crossOrigin="anonymous"
           strategy="beforeInteractive"
         />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+
         {children}
       </body>
     </html>
