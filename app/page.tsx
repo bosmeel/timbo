@@ -35,8 +35,34 @@ export default function Home() {
         Start Timer
       </Link>
 
+      {/* use cases */}
+      <div className="mt-10 w-full max-w-md grid grid-cols-1 gap-3">
+
+        <Link
+          href="/focus-timer"
+          className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50"
+        >
+          Focus Timer
+        </Link>
+
+        <Link
+          href="/classroom-timer"
+          className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50"
+        >
+          Classroom Timer
+        </Link>
+
+        <Link
+          href="/game-timer"
+          className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50"
+        >
+          Game Timer
+        </Link>
+
+      </div>
+
       {/* footer links */}
-      <div className="mt-8 text-sm text-gray-400 flex gap-4 justify-center">
+      <div className="mt-10 text-sm text-gray-400 flex gap-4 justify-center flex-wrap">
         <Link href="/about">About</Link>
         <Link href="/visual-timer-for-kids">Learn</Link>
         <Link href="/privacy">Privacy</Link>
