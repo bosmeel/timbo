@@ -2,10 +2,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 const PRESETS = [120, 180, 300, 600, 900, 1200, 1800, 2700, 3600];
 
 export default function Page() {
+
+  const searchParams = useSearchParams();
+  const mode = searchParams.get("mode");
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [seconds, setSeconds] = useState(900);
@@ -87,7 +91,23 @@ export default function Page() {
   }, [running]);
 
   return (
-    <main className="min-h-dvh bg-white flex flex-col overflow-y-auto pt-8">
+    <main className="min-h-dvh bg-white flex flex-col overflow-y-auto pt-8 relative">
+
+      {/* floating nav */}
+      <div className="absolute top-4 left-4 z-10">
+        <a href="/" className="text-xs text-gray-400">
+          ← Home
+        </a>
+      </div>
+
+      {/* mode label */}
+      {mode && (
+        <div className="absolute top-4 right-4 z-10 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+          {mode === "focus" && "Focus"}
+          {mode === "game" && "Game"}
+          {mode === "classroom" && "Classroom"}
+        </div>
+      )}
 
       {/* logo */}
       <div className="flex justify-center pt-4">
