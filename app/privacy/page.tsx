@@ -1,3 +1,5 @@
+import FloatingHome from "@/components/FloatingHome";
+
 export const metadata = {
   title: "Privacy Policy – Timbo",
   description: "Privacy policy for Timbo visual timer",
@@ -5,7 +7,9 @@ export const metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="max-w-2xl mx-auto px-6 py-12">
+    <main className="max-w-2xl mx-auto px-6 py-12 relative">
+
+      <FloatingHome />
 
       <h1 className="text-3xl font-semibold mb-6">
         Privacy Policy
