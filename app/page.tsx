@@ -1,28 +1,46 @@
 "use client";
 
+import Link from "next/link";
 import Image from "next/image";
-export const dynamic = "force-dynamic";
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-white px-6">
+    <main className="min-h-dvh flex flex-col items-center justify-center px-6 text-center">
 
-  <Image
-    src="/logo-timbo-final.svg"
-    alt="Timbo"
-    width={160}
-    height={40}
-    className="mb-6 h-auto"
-    priority
-  />
+      {/* logo */}
+      <div className="mb-6">
+        <Image
+          src="/logo-timbo-final.svg"
+          alt="Timbo"
+          width={140}
+          height={40}
+        />
+      </div>
 
-  <a
-    href="/timer"
-    className="px-6 py-3 rounded-xl bg-black text-white"
-  >
-    Open Timbo Timer
-  </a>
+      {/* headline */}
+      <h1 className="text-3xl font-semibold mb-4 max-w-md">
+        Visual timer that helps kids understand time
+      </h1>
 
-</main>
+      {/* sub */}
+      <p className="text-gray-600 mb-8 max-w-md">
+        Timbo makes time visible. Perfect for focus, routines and transitions.
+      </p>
+
+      {/* CTA */}
+      <Link
+        href="/timer"
+        className="px-6 py-3 bg-black text-white rounded-xl"
+      >
+        Start Timer
+      </Link>
+
+      <p className="mt-6 text-sm text-gray-500">
+  <Link href="/visual-timer-for-kids">
+    Learn more about visual timers
+  </Link>
+</p>
+
+    </main>
   );
 }
