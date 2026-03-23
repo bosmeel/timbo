@@ -35,25 +35,25 @@ export default function Home() {
         Start Timer
       </Link>
 
-      {/* use cases */}
+      {/* use cases (direct naar timer) */}
       <div className="mt-10 w-full max-w-md grid grid-cols-1 gap-3">
 
         <Link
-          href="/focus-timer"
+          href="/timer?mode=focus"
           className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50"
         >
           Focus Timer
         </Link>
 
         <Link
-          href="/classroom-timer"
+          href="/timer?mode=classroom"
           className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50"
         >
           Classroom Timer
         </Link>
 
         <Link
-          href="/game-timer"
+          href="/timer?mode=game"
           className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50"
         >
           Game Timer

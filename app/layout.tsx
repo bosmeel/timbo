@@ -50,6 +50,10 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
 
+<div className="w-full flex justify-center py-3 text-sm text-gray-500">
+  <a href="/">Home</a>
+</div>
+
         {children}
       </body>
     </html>
