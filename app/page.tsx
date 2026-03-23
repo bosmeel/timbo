@@ -41,6 +41,10 @@ export default function Home() {
   </Link>
 </p>
 
+<p className="mt-4 text-sm text-gray-400">
+  <a href="/about">About</a>
+</p>
+
     </main>
   );
 }
