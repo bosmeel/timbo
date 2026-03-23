@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
 const PRESETS = [120, 180, 300, 600, 900, 1200, 1800, 2700, 3600];
 
@@ -97,8 +98,10 @@ export default function Page() {
         </a>
       </div>
 
-      {/* mode label */}
-      <ModeLabel />
+      {/* mode label via Suspense */}
+      <Suspense fallback={null}>
+        <ModeLabel />
+      </Suspense>
 
       {/* logo */}
       <div className="flex justify-center pt-4">
@@ -238,9 +241,8 @@ export default function Page() {
   );
 }
 
-/* MODE LABEL COMPONENT */
+/* MODE LABEL */
 function ModeLabel() {
-  const { useSearchParams } = require("next/navigation");
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode");
 
