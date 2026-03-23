@@ -35,14 +35,12 @@ export default function Home() {
         Start Timer
       </Link>
 
-<div className="mt-6 text-sm text-gray-400 flex gap-4 justify-center">
-  <a href="/about">About</a>
-  <a href="/visual-timer-for-kids">Learn</a>
-</div>
-
-<p className="mt-4 text-sm text-gray-400">
-  <a href="/about">About</a>
-</p>
+      {/* footer links */}
+      <div className="mt-8 text-sm text-gray-400 flex gap-4 justify-center">
+        <Link href="/about">About</Link>
+        <Link href="/visual-timer-for-kids">Learn</Link>
+        <Link href="/privacy">Privacy</Link>
+      </div>
 
     </main>
   );

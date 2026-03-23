@@ -1,8 +1,9 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-const PRESETS = [120, 180, 300, 600, 900, 1200, 1800, 2700, 3600]; // 2–60 min
+const PRESETS = [120, 180, 300, 600, 900, 1200, 1800, 2700, 3600];
 
 export default function Page() {
 
@@ -20,28 +21,25 @@ export default function Page() {
   const angle = progress * 360;
 
   function unlockAudio() {
-  try {
-    if (!audioRef.current) return;
+    try {
+      if (!audioRef.current) return;
 
-    const audio = audioRef.current;
+      const audio = audioRef.current;
+      audio.muted = true;
 
-    // alleen "unlocken", niet hoorbaar spelen
-    audio.muted = true;
+      const p = audio.play();
 
-    const p = audio.play();
-
-    if (p !== undefined) {
-      p.then(() => {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.muted = false;
-      }).catch(() => {
-        audio.muted = false;
-      });
-    }
-
-  } catch {}
-}
+      if (p !== undefined) {
+        p.then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.muted = false;
+        }).catch(() => {
+          audio.muted = false;
+        });
+      }
+    } catch {}
+  }
 
   function playBeep() {
     try {
@@ -89,7 +87,7 @@ export default function Page() {
   }, [running]);
 
   return (
-    <main className="min-h-dvh bg-white flex flex-col overflow-y-autopt-8">
+    <main className="min-h-dvh bg-white flex flex-col overflow-y-auto pt-8">
 
       {/* logo */}
       <div className="flex justify-center pt-4">
@@ -101,17 +99,8 @@ export default function Page() {
         <div className="aspect-square w-[min(60vh,90vw)]">
           <svg viewBox="0 0 200 200" className="w-full h-full">
 
-            {/* 60 min referentie ring */}
-            <circle
-              cx="100"
-              cy="100"
-              r="98"
-              fill="#f3f4f6"
-              stroke="#e5e7eb"
-              strokeWidth="2"
-            />
+            <circle cx="100" cy="100" r="98" fill="#f3f4f6" stroke="#e5e7eb" strokeWidth="2" />
 
-            {/* subtiele ticks (4 kwarten) */}
             {[0, 90, 180, 270].map((deg) => {
               const p1 = polar(100, 100, 90, deg);
               const p2 = polar(100, 100, 98, deg);
@@ -128,12 +117,10 @@ export default function Page() {
               );
             })}
 
-            {/* rode timer */}
             {!isStart && progress > 0 && (
               <path d={pie(100, 100, 98, -angle)} fill="#e11d48" />
             )}
 
-            {/* logo start */}
             {isStart && (
               <foreignObject x="30" y="70" width="140" height="60">
                 <div className="flex items-center justify-center h-full">
@@ -153,7 +140,6 @@ export default function Page() {
           {formatTime(seconds)}
         </div>
 
-        {/* presets */}
         <div className="flex gap-3 flex-wrap justify-center max-w-[320px]">
           {PRESETS.map((sec) => (
             <button
@@ -163,7 +149,7 @@ export default function Page() {
                 setTotal(sec);
                 setSeconds(sec);
                 setRunning(false);
-endTimeRef.current = null;
+                endTimeRef.current = null;
               }}
               className="px-4 py-2 bg-gray-100 text-black rounded-xl"
             >
@@ -172,25 +158,24 @@ endTimeRef.current = null;
           ))}
         </div>
 
-        {/* controls */}
         <div className="flex gap-3 flex-wrap justify-center">
 
           <button
-  onClick={() => {
-    unlockAudio();
+            onClick={() => {
+              unlockAudio();
 
-    if (!running) {
-      endTimeRef.current = Date.now() + seconds * 1000;
-      setRunning(true);
-    } else {
-      endTimeRef.current = null;
-      setRunning(false);
-    }
-  }}
-  className="px-6 py-3 bg-black text-white rounded-xl"
->
-  {running ? "Pause" : "Start"}
-</button>
+              if (!running) {
+                endTimeRef.current = Date.now() + seconds * 1000;
+                setRunning(true);
+              } else {
+                endTimeRef.current = null;
+                setRunning(false);
+              }
+            }}
+            className="px-6 py-3 bg-black text-white rounded-xl"
+          >
+            {running ? "Pause" : "Start"}
+          </button>
 
           <button
             onClick={() => {
@@ -204,22 +189,21 @@ endTimeRef.current = null;
           </button>
 
           <button
-  onClick={() => {
-    const newTotal = total + 60;
+            onClick={() => {
+              const newTotal = total + 60;
 
-    if (running && endTimeRef.current) {
-      endTimeRef.current += 60000;
-    }
+              if (running && endTimeRef.current) {
+                endTimeRef.current += 60000;
+              }
 
-    setTotal(newTotal);
-    setSeconds(prev => prev + 60);
-  }}
-  className="px-4 py-3 bg-gray-200 text-black rounded-xl"
->
-  +1 min
-</button>
+              setTotal(newTotal);
+              setSeconds(prev => prev + 60);
+            }}
+            className="px-4 py-3 bg-gray-200 text-black rounded-xl"
+          >
+            +1 min
+          </button>
 
-          
           <button
             onClick={toggleFullscreen}
             className="hidden md:block px-6 py-3 bg-gray-200 text-black rounded-xl"
@@ -228,6 +212,14 @@ endTimeRef.current = null;
           </button>
 
         </div>
+
+        {/* footer links */}
+        <div className="mt-6 text-sm text-gray-400 flex gap-4 justify-center">
+          <Link href="/about">About</Link>
+          <Link href="/visual-timer-for-kids">Learn</Link>
+          <Link href="/privacy">Privacy</Link>
+        </div>
+
       </div>
 
       <audio ref={audioRef} src="/beep.mp3" preload="auto" />
