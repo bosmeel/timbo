@@ -16,6 +16,20 @@ function getPresets(mode: string) {
 export default function TimerClient() {
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode") || "classic";
+  const timeParam = searchParams.get("time");
+
+useEffect(() => {
+  if (timeParam) {
+    const sec = parseInt(timeParam);
+
+    if (!isNaN(sec)) {
+      setSeconds(sec);
+      setTotal(sec);
+      setRunning(false);
+      endTimeRef.current = null;
+    }
+  }
+}, [timeParam]);
 
   const [seconds, setSeconds] = useState(900);
   const [total, setTotal] = useState(900);
@@ -269,18 +283,3 @@ function formatTime(sec: number) {
   const s = sec % 60;
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
-
-const timeParam = searchParams.get("time");
-
-useEffect(() => {
-  if (timeParam) {
-    const sec = parseInt(timeParam);
-
-    if (!isNaN(sec)) {
-      setSeconds(sec);
-      setTotal(sec);
-      setRunning(false);
-      endTimeRef.current = null;
-    }
-  }
-}, [timeParam]);
