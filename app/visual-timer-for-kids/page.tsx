@@ -14,7 +14,7 @@ export default function LearnPage() {
       {/* back */}
       <div className="mb-6">
         <Link href="/" className="text-sm text-gray-400 underline">
-          ← All timers
+          ← Home
         </Link>
       </div>
 
