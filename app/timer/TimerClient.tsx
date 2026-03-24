@@ -254,6 +254,7 @@ export default function TimerClient() {
           <Link href="/about">About</Link>
           <Link href="/visual-timer-for-kids">Learn</Link>
           <Link href="/privacy">Privacy</Link>
+          <Link href="/contact">Contact</Link>
         </div>
 
       </div>
