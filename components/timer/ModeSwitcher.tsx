@@ -1,11 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function ModeSwitcher() {
-  const searchParams = useSearchParams();
-  const mode = searchParams.get("mode");
+
+  const [mode, setMode] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setMode(params.get("mode"));
+  }, []);
 
   const current = mode || "classic";
 
@@ -23,10 +28,10 @@ export default function ModeSwitcher() {
           key={item.key}
           href={item.href}
           className={`
-            px-2 py-1 rounded text-center
+            px-2 py-1 rounded text-center transition
             ${current === item.key
               ? "bg-black text-white"
-              : "bg-gray-100 text-gray-600"}
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"}
           `}
         >
           {item.label}
