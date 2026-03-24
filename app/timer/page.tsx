@@ -28,9 +28,18 @@ export default function Page() {
 
   // ✅ veilig mode ophalen (client only)
   useEffect(() => {
+  const updateMode = () => {
     const params = new URLSearchParams(window.location.search);
     setMode(params.get("mode"));
-  }, []);
+  };
+
+  updateMode();
+
+  const observer = new MutationObserver(updateMode);
+  observer.observe(document, { subtree: true, childList: true });
+
+  return () => observer.disconnect();
+}, []);
 
   const variant: "disc" | "hourglass" =
     mode === "game" ? "hourglass" : "disc";
