@@ -269,3 +269,18 @@ function formatTime(sec: number) {
   const s = sec % 60;
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
+
+const timeParam = searchParams.get("time");
+
+useEffect(() => {
+  if (timeParam) {
+    const sec = parseInt(timeParam);
+
+    if (!isNaN(sec)) {
+      setSeconds(sec);
+      setTotal(sec);
+      setRunning(false);
+      endTimeRef.current = null;
+    }
+  }
+}, [timeParam]);
