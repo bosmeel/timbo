@@ -27,9 +27,10 @@ export default function Home() {
         Timbo makes time visible. Simple, clear and easy to use.
       </p>
 
-      {/* timers (allemaal gelijk behandeld) */}
+      {/* timers */}
       <div className="w-full max-w-md grid gap-3">
 
+        {/* Classic → direct tool */}
         <Link
           href="/timer"
           className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
@@ -38,29 +39,53 @@ export default function Home() {
           <div className="text-xs text-gray-500">Simple visual timer</div>
         </Link>
 
+        {/* Focus → SEO page */}
         <Link
-          href="/timer?mode=focus"
+          href="/focus-timer"
           className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
         >
           <div className="font-medium">Focus Timer</div>
-          <div className="text-xs text-gray-500">Minimal & distraction-free</div>
+          <div className="text-xs text-gray-500">Deep work & concentration</div>
         </Link>
 
+        {/* Game → SEO page */}
         <Link
-          href="/timer?mode=game"
+          href="/game-timer"
           className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
         >
           <div className="font-medium">Game Timer</div>
-          <div className="text-xs text-gray-500">Fast & engaging</div>
+          <div className="text-xs text-gray-500">Fast rounds & challenges</div>
         </Link>
 
+        {/* Classroom → SEO page */}
         <Link
-          href="/timer?mode=classroom"
+          href="/classroom-timer"
           className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
         >
           <div className="font-medium">Classroom Timer</div>
-          <div className="text-xs text-gray-500">Clear & structured</div>
+          <div className="text-xs text-gray-500">Teaching & group timing</div>
         </Link>
+
+      </div>
+
+      {/* STEP 11 — SEO interlink boost */}
+      <div className="mt-16 max-w-md text-left">
+
+        <p className="text-gray-500 mb-4 text-sm">
+          Looking for a specific timer? Explore our use cases:
+        </p>
+
+        <div className="flex flex-col gap-2 text-sm">
+          <Link href="/focus-timer" className="underline">
+            Focus timer for studying and deep work
+          </Link>
+          <Link href="/classroom-timer" className="underline">
+            Classroom timer for teachers and students
+          </Link>
+          <Link href="/game-timer" className="underline">
+            Game timer for fast-paced rounds
+          </Link>
+        </div>
 
       </div>
 

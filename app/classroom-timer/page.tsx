@@ -87,7 +87,29 @@ export default function ClassroomTimerPage() {
           It works on any screen and is ready to use instantly, making it ideal for both physical classrooms and digital learning environments.
         </p>
       </section>
+<section className="mt-16 border-t pt-8">
+  <h2 className="text-lg font-semibold mb-4">
+    Explore other timers
+  </h2>
 
+  <div className="grid gap-3">
+
+    <Link href="/focus-timer" className="underline">
+      Focus Timer – for deep work and concentration
+    </Link>
+
+    <Link href="/classroom-timer" className="underline">
+      Classroom Timer – for teaching and group activities
+    </Link>
+
+    <Link href="/game-timer" className="underline">
+      Game Timer – for fast-paced games and challenges
+    </Link>
+
+  </div>
+</section>
+<Link href="/focus-timer">...</Link>
+<Link href="/game-timer">...</Link>
     </main>
   );
 }

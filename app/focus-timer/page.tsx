@@ -88,7 +88,27 @@ export default function FocusTimerPage() {
           this timer is ready instantly and requires no setup. Choose your time and start working.
         </p>
       </section>
+<section className="mt-16 border-t pt-8">
+  <h2 className="text-lg font-semibold mb-4">
+    Explore other timers
+  </h2>
 
+  <div className="grid gap-3">
+
+    <Link href="/focus-timer" className="underline">
+      Focus Timer – for deep work and concentration
+    </Link>
+
+    <Link href="/classroom-timer" className="underline">
+      Classroom Timer – for teaching and group activities
+    </Link>
+
+    <Link href="/game-timer" className="underline">
+      Game Timer – for fast-paced games and challenges
+    </Link>
+
+  </div>
+</section>
     </main>
   );
 }
