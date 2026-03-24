@@ -9,6 +9,12 @@ export default function ContactPage() {
   return (
     <main className="max-w-2xl mx-auto px-6 py-12">
 
+        <div className="mb-6">
+  <Link href="/" className="text-sm text-gray-400 underline">
+    ← All timers
+  </Link>
+</div>
+
       <h1 className="text-2xl font-semibold mb-4">
         Contact
       </h1>
@@ -28,5 +34,6 @@ export default function ContactPage() {
       </p>
 
     </main>
+    
   );
 }
