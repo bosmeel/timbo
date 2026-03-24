@@ -1,7 +1,5 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -15,17 +13,14 @@ function getPresets(mode: string) {
   return [60, 120, 180, 300, 600, 900, 1200, 1800, 2700, 3600];
 }
 
-export default function Page() {
+export default function TimerClient() {
   const searchParams = useSearchParams();
+  const mode = searchParams.get("mode") || "classic";
 
-  // ✅ CLEAN: altijd geldige mode
-  const modeParam = searchParams.get("mode");
-  const mode = modeParam || "classic";
-
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [seconds, setSeconds] = useState(900);
   const [total, setTotal] = useState(900);
   const [running, setRunning] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const endTimeRef = useRef<number | null>(null);
@@ -35,24 +30,62 @@ export default function Page() {
 
   const progress = total > 0 ? 1 - seconds / total : 0;
 
+  /* ---------------- FULLSCREEN ---------------- */
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
+
+  /* ---------------- TIMER LOOP ---------------- */
+
+  useEffect(() => {
+    if (!running) return;
+
+    const interval = setInterval(() => {
+      if (!endTimeRef.current) return;
+
+      const remaining = Math.max(
+        0,
+        Math.round((endTimeRef.current - Date.now()) / 1000)
+      );
+
+      setSeconds(remaining);
+
+      if (remaining === 0) {
+        setRunning(false);
+        endTimeRef.current = null;
+        playBeep();
+      }
+    }, 300);
+
+    return () => clearInterval(interval);
+  }, [running]);
+
+  /* ---------------- AUDIO ---------------- */
+
   function unlockAudio() {
     try {
-      if (!audioRef.current) return;
-
       const audio = audioRef.current;
+      if (!audio) return;
+
       audio.muted = true;
-
-      const p = audio.play();
-
-      if (p !== undefined) {
-        p.then(() => {
-          audio.pause();
-          audio.currentTime = 0;
-          audio.muted = false;
-        }).catch(() => {
-          audio.muted = false;
-        });
-      }
+      audio.play().then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.muted = false;
+      }).catch(() => {
+        audio.muted = false;
+      });
     } catch {}
   }
 
@@ -73,40 +106,38 @@ export default function Page() {
     } catch {}
   }
 
-  function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
+  /* ---------------- UI ACTIONS ---------------- */
+
+  function startPause() {
+    unlockAudio();
+
+    if (!running) {
+      endTimeRef.current = Date.now() + seconds * 1000;
+      setRunning(true);
     } else {
-      document.exitFullscreen();
+      endTimeRef.current = null;
+      setRunning(false);
     }
   }
 
-  useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener("fullscreenchange", handler);
-    return () => document.removeEventListener("fullscreenchange", handler);
-  }, []);
+  function reset() {
+    setSeconds(total);
+    setRunning(false);
+    endTimeRef.current = null;
+  }
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!running || !endTimeRef.current) return;
+  function addMinute() {
+    const add = 60;
 
-      const remaining = Math.max(
-        0,
-        Math.round((endTimeRef.current - Date.now()) / 1000)
-      );
+    if (running && endTimeRef.current) {
+      endTimeRef.current += add * 1000;
+    }
 
-      setSeconds(remaining);
+    setTotal((t) => t + add);
+    setSeconds((s) => s + add);
+  }
 
-      if (remaining === 0) {
-        setRunning(false);
-        endTimeRef.current = null;
-        playBeep();
-      }
-    }, 300);
-
-    return () => clearInterval(interval);
-  }, [running, mode]);
+  /* ---------------- RENDER ---------------- */
 
   return (
     <main
@@ -133,7 +164,6 @@ export default function Page() {
         </Link>
       </div>
 
-      {/* mode switch */}
       <ModeSwitcher />
 
       {/* logo */}
@@ -190,44 +220,21 @@ export default function Page() {
         <div className="flex gap-3 flex-wrap justify-center">
 
           <button
-            onClick={() => {
-              unlockAudio();
-
-              if (!running) {
-                endTimeRef.current = Date.now() + seconds * 1000;
-                setRunning(true);
-              } else {
-                endTimeRef.current = null;
-                setRunning(false);
-              }
-            }}
+            onClick={startPause}
             className="px-6 py-3 bg-black text-white rounded-xl"
           >
             {running ? "Pause" : "Start"}
           </button>
 
           <button
-            onClick={() => {
-              setSeconds(total);
-              setRunning(false);
-              endTimeRef.current = null;
-            }}
+            onClick={reset}
             className="px-6 py-3 bg-gray-200 text-black rounded-xl"
           >
             Reset
           </button>
 
           <button
-            onClick={() => {
-              const add = 60;
-
-              if (running && endTimeRef.current) {
-                endTimeRef.current += add * 1000;
-              }
-
-              setTotal((t) => t + add);
-              setSeconds((s) => s + add);
-            }}
+            onClick={addMinute}
             className="px-4 py-3 bg-gray-200 text-black rounded-xl"
           >
             +1 min

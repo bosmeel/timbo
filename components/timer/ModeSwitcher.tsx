@@ -27,11 +27,13 @@ export default function ModeSwitcher() {
             key={item.key}
             href={item.href}
             className={`
-              text-xs px-3 py-1.5 rounded-full border transition
-              ${active
-                ? "bg-black text-white border-black"
-                : "bg-white text-black border-gray-300 hover:bg-gray-100"}
-            `}
+  text-xs px-3 py-1.5 rounded-full border transition
+  ${
+    active
+      ? "bg-gray-100 text-black border-gray-400"
+      : "bg-white text-gray-600 border-gray-300 hover:bg-gray-100"
+  }
+`}
           >
             {item.label}
           </Link>
