@@ -19,52 +19,52 @@ export default function Home() {
 
       {/* headline */}
       <h1 className="text-3xl font-semibold mb-4 max-w-md">
-        Visual timer that helps kids understand time
+        Visual timer for focus, games & classroom
       </h1>
 
       {/* sub */}
-      <p className="text-gray-600 mb-8 max-w-md">
-        Timbo makes time visible. Perfect for focus, routines and transitions.
+      <p className="text-gray-600 mb-10 max-w-md">
+        Timbo makes time visible. Simple, clear and easy to use.
       </p>
 
-      {/* CTA */}
-      <Link
-        href="/timer"
-        className="px-6 py-3 bg-black text-white rounded-xl"
-      >
-        Start Timer
-      </Link>
+      {/* timers (allemaal gelijk behandeld) */}
+      <div className="w-full max-w-md grid gap-3">
 
-      {/* use cases (direct naar timer) */}
-      <div className="mt-10 w-full max-w-md grid grid-cols-1 gap-3">
+        <Link
+          href="/timer"
+          className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
+        >
+          <div className="font-medium">Classic Timer</div>
+          <div className="text-xs text-gray-500">Simple visual timer</div>
+        </Link>
 
-  <Link
-    href="/timer?mode=focus"
-    className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
-  >
-    <div className="font-medium">Focus Timer</div>
-    <div className="text-xs text-gray-500">Study, homework, deep work</div>
-  </Link>
+        <Link
+          href="/timer?mode=focus"
+          className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
+        >
+          <div className="font-medium">Focus Timer</div>
+          <div className="text-xs text-gray-500">Minimal & distraction-free</div>
+        </Link>
 
-  <Link
-    href="/timer?mode=classroom"
-    className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
-  >
-    <div className="font-medium">Classroom Timer</div>
-    <div className="text-xs text-gray-500">Activities, transitions, lessons</div>
-  </Link>
+        <Link
+          href="/timer?mode=game"
+          className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
+        >
+          <div className="font-medium">Game Timer</div>
+          <div className="text-xs text-gray-500">Fast & engaging</div>
+        </Link>
 
-  <Link
-    href="/timer?mode=game"
-    className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
-  >
-    <div className="font-medium">Game Timer</div>
-    <div className="text-xs text-gray-500">Board games and time challenges</div>
-  </Link>
+        <Link
+          href="/timer?mode=classroom"
+          className="px-4 py-3 border rounded-xl text-black hover:bg-gray-50 text-left"
+        >
+          <div className="font-medium">Classroom Timer</div>
+          <div className="text-xs text-gray-500">Clear & structured</div>
+        </Link>
 
-</div>
+      </div>
 
-      {/* footer links */}
+      {/* footer */}
       <div className="mt-10 text-sm text-gray-400 flex gap-4 justify-center flex-wrap">
         <Link href="/about">About</Link>
         <Link href="/visual-timer-for-kids">Learn</Link>

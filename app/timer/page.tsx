@@ -4,8 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import TimerVisual from "@/components/timer/TimerVisual";
+import ModeSwitcher from "@/components/timer/ModeSwitcher";
 
-const PRESETS = [120, 180, 300, 600, 900, 1200, 1800, 2700, 3600];
+function getPresets(mode: string | null) {
+  if (mode === "game") {
+    return [30, 60, 120, 180, 300];
+  }
+
+  if (mode === "classroom") {
+    return [60, 300, 600, 900, 1800];
+  }
+
+  // focus / default (originele timer + 1 min toegevoegd)
+  return [60, 120, 180, 300, 600, 900, 1200, 1800, 2700, 3600];
+}
 
 export default function Page() {
 
@@ -14,13 +27,17 @@ export default function Page() {
   const [total, setTotal] = useState(900);
   const [running, setRunning] = useState(false);
 
+  // ✅ NIEUW
+  const searchParams = useSearchParams();
+const mode = searchParams.get("mode");
+
+const variant: "disc" | "hourglass" =
+  mode === "game" ? "hourglass" : "disc";
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const endTimeRef = useRef<number | null>(null);
 
-  const isStart = !running && seconds === total;
-
-  const progress = total > 0 ? seconds / total : 0;
-  const angle = progress * 360;
+  const progress = total > 0 ? 1 - (seconds / total) : 0;
 
   function unlockAudio() {
     try {
@@ -44,14 +61,24 @@ export default function Page() {
   }
 
   function playBeep() {
-    try {
-      if (!audioRef.current) return;
+  try {
+    const audio = audioRef.current;
+    if (!audio) return;
 
-      const audio = audioRef.current;
-      audio.currentTime = 0;
-      audio.play().catch(() => {});
-    } catch {}
-  }
+    let src = "/beep-focus.mp3";
+
+    if (mode === "game") src = "/beep-game.mp3";
+    if (mode === "classroom") src = "/beep-classroom.mp3";
+
+    // 🔑 force reload
+    audio.pause();
+    audio.src = src;
+    audio.load();
+
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  } catch {}
+}
 
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
@@ -89,73 +116,62 @@ export default function Page() {
   }, [running]);
 
   return (
-    <main className="min-h-dvh bg-white flex flex-col overflow-y-auto pt-8 relative">
+ <main
+  className={`
+    min-h-dvh flex flex-col overflow-y-auto pt-8 relative
+    ${seconds === 0
+      ? mode === "game"
+        ? "bg-red-50"
+        : mode === "classroom"
+        ? "bg-yellow-50"
+        : "bg-white"
+      : mode === "classroom"
+      ? "bg-gray-50"
+      : "bg-white"}
+  `}
+>
 
-      {/* floating nav */}
       <div className="absolute top-4 left-4 z-10">
         <a href="/" className="text-xs text-gray-400">
           ← Home
         </a>
       </div>
 
-      {/* mode label via Suspense */}
       <Suspense fallback={null}>
-        <ModeLabel />
+      <ModeSwitcher />
       </Suspense>
 
-      {/* logo */}
       <div className="flex justify-center pt-4">
         <Image src="/logo-timbo-final.svg" alt="Timbo" width={100} height={25} />
       </div>
 
-      {/* TIMER */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="aspect-square w-[min(60vh,90vw)]">
-          <svg viewBox="0 0 200 200" className="w-full h-full">
-
-            <circle cx="100" cy="100" r="98" fill="#f3f4f6" stroke="#e5e7eb" strokeWidth="2" />
-
-            {[0, 90, 180, 270].map((deg) => {
-              const p1 = polar(100, 100, 90, deg);
-              const p2 = polar(100, 100, 98, deg);
-              return (
-                <line
-                  key={deg}
-                  x1={p1.x}
-                  y1={p1.y}
-                  x2={p2.x}
-                  y2={p2.y}
-                  stroke="#d1d5db"
-                  strokeWidth="2"
-                />
-              );
-            })}
-
-            {!isStart && progress > 0 && (
-              <path d={pie(100, 100, 98, -angle)} fill="#e11d48" />
-            )}
-
-            {isStart && (
-              <foreignObject x="30" y="70" width="140" height="60">
-                <div className="flex items-center justify-center h-full">
-                  <Image src="/logo-timbo-final.svg" alt="Timbo" width={100} height={25} />
-                </div>
-              </foreignObject>
-            )}
-
-          </svg>
-        </div>
+      {/* ✅ FIXED */}
+      <div className="flex-1 flex items-center justify-center py-6">
+        <TimerVisual
+  variant={variant}
+  progress={progress}
+  remaining={seconds}
+  duration={total}
+  isRunning={running}
+  isFinished={seconds === 0}
+  mode={mode}   // ✅ toevoegen
+/>
       </div>
 
-      {/* UI */}
       <div className="flex flex-col items-center gap-4 pb-[calc(80px+env(safe-area-inset-bottom))]">
 
-        <div className="text-5xl font-semibold text-black my-4">
-          {formatTime(seconds)}
-        </div>
+        <div
+  className={`
+    font-semibold my-4
+    ${seconds === 0 ? "text-red-600" : "text-black"}
+    ${mode === "classroom" ? "text-7xl" : "text-4xl"}
+  `}
+>
+  {formatTime(seconds)}
+</div>
 
         <div className="flex gap-3 flex-wrap justify-center max-w-[320px]">
-          {PRESETS.map((sec) => (
+         {getPresets(mode).map((sec) => (
             <button
               key={sec}
               onClick={() => {
@@ -225,9 +241,9 @@ export default function Page() {
             {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
           </button>
 
+          
         </div>
 
-        {/* footer links */}
         <div className="mt-6 text-sm text-gray-400 flex gap-4 justify-center">
           <Link href="/about">About</Link>
           <Link href="/visual-timer-for-kids">Learn</Link>
@@ -236,12 +252,11 @@ export default function Page() {
 
       </div>
 
-      <audio ref={audioRef} src="/beep.mp3" preload="auto" />
+      <audio ref={audioRef} preload="auto" />
     </main>
   );
 }
 
-/* MODE LABEL */
 function ModeLabel() {
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode");
@@ -255,22 +270,6 @@ function ModeLabel() {
       {mode === "classroom" && "Classroom"}
     </div>
   );
-}
-
-/* helpers */
-function pie(cx: number, cy: number, r: number, angle: number) {
-  const end = polar(cx, cy, r, angle);
-  const large = Math.abs(angle) > 180 ? 1 : 0;
-
-  return ["M", cx, cy, "L", cx, cy - r, "A", r, r, 0, large, 0, end.x, end.y, "Z"].join(" ");
-}
-
-function polar(cx: number, cy: number, r: number, angle: number) {
-  const rad = ((angle - 90) * Math.PI) / 180;
-  return {
-    x: cx + r * Math.cos(rad),
-    y: cy + r * Math.sin(rad),
-  };
 }
 
 function formatTime(sec: number) {
