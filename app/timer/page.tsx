@@ -1,23 +1,16 @@
 "use client";
 
 export const dynamic = "force-dynamic";
+
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
 import TimerVisual from "@/components/timer/TimerVisual";
 import ModeSwitcher from "@/components/timer/ModeSwitcher";
 
 function getPresets(mode: string | null) {
-  if (mode === "game") {
-    return [30, 60, 120, 180, 300];
-  }
-
-  if (mode === "classroom") {
-    return [60, 300, 600, 900, 1800];
-  }
-
-  // focus / default (originele timer + 1 min toegevoegd)
+  if (mode === "game") return [30, 60, 120, 180, 300];
+  if (mode === "classroom") return [60, 300, 600, 900, 1800];
   return [60, 120, 180, 300, 600, 900, 1200, 1800, 2700, 3600];
 }
 
@@ -28,15 +21,19 @@ export default function Page() {
   const [total, setTotal] = useState(900);
   const [running, setRunning] = useState(false);
 
-  // ✅ NIEUW
-  const searchParams = useSearchParams();
-const mode = searchParams.get("mode");
-
-const variant: "disc" | "hourglass" =
-  mode === "game" ? "hourglass" : "disc";
+  const [mode, setMode] = useState<string | null>(null);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const endTimeRef = useRef<number | null>(null);
+
+  // ✅ veilig mode ophalen (client only)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setMode(params.get("mode"));
+  }, []);
+
+  const variant: "disc" | "hourglass" =
+    mode === "game" ? "hourglass" : "disc";
 
   const progress = total > 0 ? 1 - (seconds / total) : 0;
 
@@ -62,24 +59,21 @@ const variant: "disc" | "hourglass" =
   }
 
   function playBeep() {
-  try {
-    const audio = audioRef.current;
-    if (!audio) return;
+    try {
+      const audio = audioRef.current;
+      if (!audio) return;
 
-    let src = "/beep-focus.mp3";
+      let src = "/beep-focus.mp3";
+      if (mode === "game") src = "/beep-game.mp3";
+      if (mode === "classroom") src = "/beep-classroom.mp3";
 
-    if (mode === "game") src = "/beep-game.mp3";
-    if (mode === "classroom") src = "/beep-classroom.mp3";
-
-    // 🔑 force reload
-    audio.pause();
-    audio.src = src;
-    audio.load();
-
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
-  } catch {}
-}
+      audio.pause();
+      audio.src = src;
+      audio.load();
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    } catch {}
+  }
 
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
@@ -117,62 +111,67 @@ const variant: "disc" | "hourglass" =
   }, [running]);
 
   return (
- <main
-  className={`
-    min-h-dvh flex flex-col overflow-y-auto pt-8 relative
-    ${seconds === 0
-      ? mode === "game"
-        ? "bg-red-50"
-        : mode === "classroom"
-        ? "bg-yellow-50"
-        : "bg-white"
-      : mode === "classroom"
-      ? "bg-gray-50"
-      : "bg-white"}
-  `}
->
+    <main
+      className={`
+        min-h-dvh flex flex-col overflow-y-auto pt-8 relative
+        ${seconds === 0
+          ? mode === "game"
+            ? "bg-red-50"
+            : mode === "classroom"
+            ? "bg-yellow-50"
+            : "bg-white"
+          : mode === "classroom"
+          ? "bg-gray-50"
+          : "bg-white"}
+      `}
+    >
 
+      {/* back */}
       <div className="absolute top-4 left-4 z-10">
         <a href="/" className="text-xs text-gray-400">
           ← Home
         </a>
       </div>
 
+      {/* mode switch */}
       <Suspense fallback={null}>
-      <ModeSwitcher />
+        <ModeSwitcher />
       </Suspense>
 
+      {/* logo */}
       <div className="flex justify-center pt-4">
         <Image src="/logo-timbo-final.svg" alt="Timbo" width={100} height={25} />
       </div>
 
-      {/* ✅ FIXED */}
+      {/* visual */}
       <div className="flex-1 flex items-center justify-center py-6">
         <TimerVisual
-  variant={variant}
-  progress={progress}
-  remaining={seconds}
-  duration={total}
-  isRunning={running}
-  isFinished={seconds === 0}
-  mode={mode}   // ✅ toevoegen
-/>
+          variant={variant}
+          progress={progress}
+          remaining={seconds}
+          duration={total}
+          isRunning={running}
+          isFinished={seconds === 0}
+          mode={mode}
+        />
       </div>
 
+      {/* UI */}
       <div className="flex flex-col items-center gap-4 pb-[calc(80px+env(safe-area-inset-bottom))]">
 
         <div
-  className={`
-    font-semibold my-4
-    ${seconds === 0 ? "text-red-600" : "text-black"}
-    ${mode === "classroom" ? "text-7xl" : "text-4xl"}
-  `}
->
-  {formatTime(seconds)}
-</div>
+          className={`
+            font-semibold my-4
+            ${seconds === 0 ? "text-red-600" : "text-black"}
+            ${mode === "classroom" ? "text-7xl" : "text-4xl"}
+          `}
+        >
+          {formatTime(seconds)}
+        </div>
 
+        {/* presets */}
         <div className="flex gap-3 flex-wrap justify-center max-w-[320px]">
-         {getPresets(mode).map((sec) => (
+          {getPresets(mode).map((sec) => (
             <button
               key={sec}
               onClick={() => {
@@ -189,6 +188,7 @@ const variant: "disc" | "hourglass" =
           ))}
         </div>
 
+        {/* controls */}
         <div className="flex gap-3 flex-wrap justify-center">
 
           <button
@@ -221,14 +221,14 @@ const variant: "disc" | "hourglass" =
 
           <button
             onClick={() => {
-              const newTotal = total + 60;
+              const add = 60;
 
               if (running && endTimeRef.current) {
-                endTimeRef.current += 60000;
+                endTimeRef.current += add * 1000;
               }
 
-              setTotal(newTotal);
-              setSeconds(prev => prev + 60);
+              setTotal((t) => t + add);
+              setSeconds((s) => s + add);
             }}
             className="px-4 py-3 bg-gray-200 text-black rounded-xl"
           >
@@ -242,9 +242,9 @@ const variant: "disc" | "hourglass" =
             {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
           </button>
 
-          
         </div>
 
+        {/* footer */}
         <div className="mt-6 text-sm text-gray-400 flex gap-4 justify-center">
           <Link href="/about">About</Link>
           <Link href="/visual-timer-for-kids">Learn</Link>
@@ -255,21 +255,6 @@ const variant: "disc" | "hourglass" =
 
       <audio ref={audioRef} preload="auto" />
     </main>
-  );
-}
-
-function ModeLabel() {
-  const searchParams = useSearchParams();
-  const mode = searchParams.get("mode");
-
-  if (!mode) return null;
-
-  return (
-    <div className="absolute top-4 right-4 z-10 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-      {mode === "focus" && "Focus"}
-      {mode === "game" && "Game"}
-      {mode === "classroom" && "Classroom"}
-    </div>
   );
 }
 
