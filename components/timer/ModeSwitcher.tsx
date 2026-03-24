@@ -1,28 +1,43 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+
+const MODES = [
+  { key: "classic", label: "Classic", href: "/timer" },
+  { key: "focus", label: "Focus", href: "/timer?mode=focus" },
+  { key: "game", label: "Game", href: "/timer?mode=game" },
+  { key: "classroom", label: "Classroom", href: "/timer?mode=classroom" },
+];
 
 export default function ModeSwitcher() {
-  const router = useRouter();
+  const searchParams = useSearchParams();
+  const modeParam = searchParams.get("mode");
 
-  const items = [
-    { label: "Classic", href: "/timer" },
-    { label: "Focus", href: "/timer?mode=focus" },
-    { label: "Game", href: "/timer?mode=game" },
-    { label: "Classroom", href: "/timer?mode=classroom" },
-  ];
+  const current = modeParam || "classic";
 
   return (
-    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-1 text-xs">
-      {items.map((item) => (
-        <button
-          key={item.href}
-          onClick={() => router.push(item.href)}
-          className="px-2 py-1 rounded text-center bg-gray-100 text-gray-700 hover:bg-gray-200"
-        >
-          {item.label}
-        </button>
-      ))}
+    <div className="absolute top-4 right-4 z-10 flex gap-2">
+
+      {MODES.map((item) => {
+        const active = current === item.key;
+
+        return (
+          <Link
+            key={item.key}
+            href={item.href}
+            className={`
+              text-xs px-3 py-1.5 rounded-full border transition
+              ${active
+                ? "bg-black text-white border-black"
+                : "bg-white text-black border-gray-300 hover:bg-gray-100"}
+            `}
+          >
+            {item.label}
+          </Link>
+        );
+      })}
+
     </div>
   );
 }

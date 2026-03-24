@@ -4,47 +4,36 @@ export const dynamic = "force-dynamic";
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState, Suspense } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import TimerVisual from "@/components/timer/TimerVisual";
 import ModeSwitcher from "@/components/timer/ModeSwitcher";
 
-function getPresets(mode: string | null) {
+function getPresets(mode: string) {
   if (mode === "game") return [30, 60, 120, 180, 300];
   if (mode === "classroom") return [60, 300, 600, 900, 1800];
   return [60, 120, 180, 300, 600, 900, 1200, 1800, 2700, 3600];
 }
 
 export default function Page() {
+  const searchParams = useSearchParams();
+
+  // ✅ CLEAN: altijd geldige mode
+  const modeParam = searchParams.get("mode");
+  const mode = modeParam || "classic";
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [seconds, setSeconds] = useState(900);
   const [total, setTotal] = useState(900);
   const [running, setRunning] = useState(false);
 
-  const [mode, setMode] = useState<string | null>(null);
-
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const endTimeRef = useRef<number | null>(null);
-
-  // ✅ veilig mode ophalen (client only)
-  useEffect(() => {
-  const updateMode = () => {
-    const params = new URLSearchParams(window.location.search);
-    setMode(params.get("mode"));
-  };
-
-  updateMode();
-
-  const observer = new MutationObserver(updateMode);
-  observer.observe(document, { subtree: true, childList: true });
-
-  return () => observer.disconnect();
-}, []);
 
   const variant: "disc" | "hourglass" =
     mode === "game" ? "hourglass" : "disc";
 
-  const progress = total > 0 ? 1 - (seconds / total) : 0;
+  const progress = total > 0 ? 1 - seconds / total : 0;
 
   function unlockAudio() {
     try {
@@ -117,35 +106,35 @@ export default function Page() {
     }, 300);
 
     return () => clearInterval(interval);
-  }, [running]);
+  }, [running, mode]);
 
   return (
     <main
       className={`
         min-h-dvh flex flex-col overflow-y-auto pt-8 relative
-        ${seconds === 0
-          ? mode === "game"
-            ? "bg-red-50"
+        ${
+          seconds === 0
+            ? mode === "game"
+              ? "bg-red-50"
+              : mode === "classroom"
+              ? "bg-yellow-50"
+              : "bg-white"
             : mode === "classroom"
-            ? "bg-yellow-50"
+            ? "bg-gray-50"
             : "bg-white"
-          : mode === "classroom"
-          ? "bg-gray-50"
-          : "bg-white"}
+        }
       `}
     >
 
-      {/* back */}
+      {/* home */}
       <div className="absolute top-4 left-4 z-10">
-        <a href="/" className="text-xs text-gray-400">
-          ← Home
-        </a>
+        <Link href="/" className="text-xs text-gray-400">
+          ← All timers
+        </Link>
       </div>
 
       {/* mode switch */}
-      <Suspense fallback={null}>
-        <ModeSwitcher />
-      </Suspense>
+      <ModeSwitcher />
 
       {/* logo */}
       <div className="flex justify-center pt-4">
